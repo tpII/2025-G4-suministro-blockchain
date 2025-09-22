@@ -1,4 +1,5 @@
 #define MCU_ESP8266
+#include <./config.h>
 //#define MCU_ESP32
 
 // Para conectar al WiFi. (Seleccionar MCU) 
@@ -22,15 +23,15 @@
 
 /* RED WiFi*/
 // Nombre de red
-const char* ssid = "Hakuna Matata";  
+const char* ssid = WIFI_SSID;  //en .env
 // Contraseña de red
-const char* password = "44325664";  
+const char* password = WIFI_PASSWORD;  //en .env
 
 /* MQTT */
 // Direccion IP del servidor MQTT
-const char* mqtt_server = "192.168.1.35";  
+const char* mqtt_server = MQTT_SERVER;  
 // Puerto MQTT predeterminado
-const int mqtt_port = 1883;  
+const int mqtt_port = MQTT_PORT;  
 
 // Instancias de cliente MQTT
 WiFiClient espClient;

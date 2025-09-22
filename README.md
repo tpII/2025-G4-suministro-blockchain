@@ -82,6 +82,7 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
     <li><a href="#prerequisites-hyperledger-fabric"> ➤ Prerrequisitos-Hyperledger Fabric</a></li>
     <li><a href="#prerequisites-mcu"> ➤ Prerrequisitos-ESP8266/ESP32</a></li>
     <li><a href="#prerequisites-app-web"> ➤ Prerrequisitos-Aplicación Web</a></li>
+    <li><a href="#conf-env"> ➤ Configuración del entorno
     <li><a href="#installation-hyperledger-fabric"> ➤ Instalación-Hyperledger Fabric</a></li>
     <li><a href="#installation-app-web"> ➤ Instalación-Aplicación Web</a></li>
     <li><a href="#roles"> ➤ Roles</a></li>
@@ -102,6 +103,7 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
   <p>La integración de Mosquitto en el proyecto SSCS añade una capa adicional de eficiencia y confiabilidad en la comunicación entre la aplicación web y el dispositivo IoT. Este broker MQTT gestiona la publicación y suscripción de mensajes, garantizando una transmisión de datos muy rápida.</p>
 
   <p>Para su instalación visitar la pagina web <a href="https://mosquitto.org/">https://mosquitto.org/</a>.</p>
+
 </details>
 
 ---
@@ -125,7 +127,7 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 
 <details>
   <summary>Prerrequisitos-ESP8266/ESP32</summary>
-  <p>Se requiere descargar el .ino contenido en <a href="https://github.com/tpII/2025-G4-suministro-blockchain/blob/main/TP2-ESCANER-RFID/TP2-ESCANER-RFID.ino">TP2-ESCANER-RFID</a>, configurar el MCU utilizado y completar con los parametros de WiFi y broker MQTT correspondientes. También se deben configurar los pines de los sensores que se utilizan, y finalmente cargar el programa al microcontrolador.</p>
+  <p>Se requiere descargar el .ino contenido en <a href="https://github.com/tpII/2025-G4-suministro-blockchain/blob/main/TP2-ESCANER-RFID/TP2-ESCANER-RFID.ino">TP2-ESCANER-RFID</a>, configurar el MCU utilizado y los pines de los sensores, y finalmente cargar el programa al microcontrolador.</p>
 </details>
 
 ---
@@ -140,6 +142,14 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 </details>
 
 ---
+<!-- Configuración del entorno -->
+<h1 id="conf-env"> ⚙️ Configuración del entorno</h1>
+<details>
+  <summary>Configuración del entorno</summary>
+  <p> Se debe copiar el contenido del archivo .env.example en el archivo **local** .env, y luego completar con los datos correspondientes. Finalmente, se debe ejecutar el script generateEnv.py para generar la cabecera config.h que necesita el archivo .ino.
+</details>
+
+
 
 <!-- Instalación HYPERLEDGER FABRIC -->
 <h1 id="installation-hyperledger-fabric"> ⛓️ Instalación-Hyperledger Fabric</h1>
