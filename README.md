@@ -335,6 +335,17 @@ export CORE_PEER_ADDRESS=localhost:7051
 *  **Juliana Soto** [![Repo](https://badgen.net/badge/icon/julianasoto5?icon=github&label)](https://github.com/julianasoto5)
 
 
+* Proyecto [2023-G5-BLOCKCHAIN](https://github.com/tpII/2023-G5-BLOCKCHAIN)
+  * **Brian Llamocca** [![Repo](https://badgen.net/badge/icon/notBraii?icon=github&label)](https://github.com/notBraii)
+
+  * **Juan Martín Ercoli** [![Repo](https://badgen.net/badge/icon/Juanercoli?icon=github&label)](https://github.com/Juanercoli)
+  
+  *  **Joaquín Matto** [![Repo](https://badgen.net/badge/icon/momus53?icon=github&label)](https://github.com/momus53)
+
+  *  **Joaquín Stella** [![Repo](https://badgen.net/badge/icon/joaquin99?icon=github&label)](https://github.com/joaquin99)
+
+
+
 
 <h1 id="coordinador">📌 Coordinador</h1>
 
