@@ -271,6 +271,7 @@ timeoutId = setTimeout(disableButton, 1000);  // Deshabilita el botón después 
 
     // Función para manejar el clic en el botón "Llenar Campo"
     $('#llenar_boton').click(function(event) {
+         event.preventDefault();
         $("#overlay").show();
         $('.popup, .popup-2').css('display', 'flex');
         // Evitar el envío automático del formulario

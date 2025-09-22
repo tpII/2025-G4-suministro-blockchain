@@ -4,7 +4,7 @@
 </div>
 
 <!-- Titulo del proyecto -->
-# Proyecto G5 - Sistema de Seguimiento de la Cadena de Suministro utilizando Hyperledger Fabric
+# Proyecto G4 - Sistema de Seguimiento de la Cadena de Suministro utilizando Hyperledger Fabric
 
 <!-- Descripción del proyecto -->
 El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración del potencial de la tecnología blockchain para proporcionar visibilidad, transparencia y trazabilidad en cada etapa del proceso logístico. Utilizando la tecnología de Hyperledger Fabric, el proyecto tiene como objetivo la demostración de cómo se puede transformar la cadena de suministro convencional en un modelo eficiente, seguro y confiable.
@@ -78,10 +78,10 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 <details open="open">
   <summary>Tabla de contenidos</summary>
   <ol>
-    <li><a href="#prerequisites-mosquitto"> ➤ Prerequisitos-Mosquitto</a></li>
-    <li><a href="#prerequisites-hyperledger-fabric"> ➤ Prerequisitos-Hyperledger Fabric</a></li>
-    <li><a href="#prerequisites-esp8266"> ➤ Prerequisitos-ESP8266</a></li>
-    <li><a href="#prerequisites-app-web"> ➤ Prerequisitos-Aplicación Web</a></li>
+    <li><a href="#prerequisites-mosquitto"> ➤ Prerrequisitos-Mosquitto</a></li>
+    <li><a href="#prerequisites-hyperledger-fabric"> ➤ Prerrequisitos-Hyperledger Fabric</a></li>
+    <li><a href="#prerequisites-mcu"> ➤ Prerrequisitos-ESP8266/ESP32</a></li>
+    <li><a href="#prerequisites-app-web"> ➤ Prerrequisitos-Aplicación Web</a></li>
     <li><a href="#installation-hyperledger-fabric"> ➤ Instalación-Hyperledger Fabric</a></li>
     <li><a href="#installation-app-web"> ➤ Instalación-Aplicación Web</a></li>
     <li><a href="#roles"> ➤ Roles</a></li>
@@ -94,11 +94,11 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 
 ---
 
-<!-- Prerequisitos MOSQUITTO -->
-<h1 id="prerequisites-mosquitto"> 🦟 Prerequisitos-Mosquitto</h1>
+<!-- prerrequisitos MOSQUITTO -->
+<h1 id="prerequisites-mosquitto"> 🦟 Prerrequisitos-Mosquitto</h1>
 
 <details>
-  <summary>Prerequisitos-Mosquitto</summary>
+  <summary>Prerrequisitos-Mosquitto</summary>
   <p>La integración de Mosquitto en el proyecto SSCS añade una capa adicional de eficiencia y confiabilidad en la comunicación entre la aplicación web y el dispositivo IoT. Este broker MQTT gestiona la publicación y suscripción de mensajes, garantizando una transmisión de datos muy rápida.</p>
 
   <p>Para su instalación visitar la pagina web <a href="https://mosquitto.org/">https://mosquitto.org/</a>.</p>
@@ -106,35 +106,35 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 
 ---
 
-<!-- Prerequisitos HYPERLEDGER FABRIC -->
-<h1 id="prerequisites-hyperledger-fabric"> ⛓️ Prerequisitos-Hyperledger Fabric</h1>
+<!-- prerrequisitos HYPERLEDGER FABRIC -->
+<h1 id="prerequisites-hyperledger-fabric"> ⛓️ Prerrequisitos-Hyperledger Fabric</h1>
 
 <details>
-  <summary>Prerequisitos-Hyperledger Fabric</summary>
+  <summary>Prerrequisitos-Hyperledger Fabric</summary>
   <p>Hyperledger Fabric es una tecnología blockchain empresarial que proporciona una plataforma robusta y segura para la gestión de assets y transacciones en la cadena de suministro. Gracias a sus características, como la capacidad de definir permisos y roles específicos, así como su enfoque modular, Hyperledger Fabric se convierte en una opción poderosa para garantizar la transparencia y la trazabilidad en proyectos como el SSCS.</p>
 
-  <p>Se requieren las tecnologias listadas en <a href="https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html">https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html</a>, debe seguir las instrucciones de instalación de los prerequisitos dependiendo el sistema operativo que este utilizando.</p>
+  <p>Se requieren las tecnologias listadas en <a href="https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html">https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html</a>, debe seguir las instrucciones de instalación de los prerrequisitos dependiendo el sistema operativo que este utilizando. Se recomienda fuertemente utilizar Linux o, en su defecto, trabajar desde WSL.</p>
 
   <p>Adicionalmente debe tener instalado NPM y NodeJS en su última versión. <a href="https://nodejs.org/en">https://nodejs.org/en</a>.</p>
 </details>
 
 ---
 
-<!-- Prerequisitos ESP8266 -->
-<h1 id="prerequisites-esp8266"> 🌶️ Prerequisitos-ESP8266</h1>
+<!-- prerrequisitos ESP8266 -->
+<h1 id="prerequisites-mcu"> 🌶️ Prerrequisitos-ESP8266/ESP32</h1>
 
 <details>
-  <summary>Prerequisitos-ESP8266</summary>
-  <p>Se requiere descargar el .ino contenido en <a href="https://github.com/tpII/2023-G5-BLOCKCHAIN/blob/main/TP2-ESCANER-RFID/TP2-ESCANER-RFID.ino">TP2-ESCANER-RFID</a>, configurarlo con los parametros de WiFi y broker MQTT correspondientes, configurar los pines de los sensores que se utilizan y finalmente cargar el programa al microcontrolador.</p>
+  <summary>Prerrequisitos-ESP8266/ESP32</summary>
+  <p>Se requiere descargar el .ino contenido en <a href="https://github.com/tpII/2025-G4-suministro-blockchain/blob/main/TP2-ESCANER-RFID/TP2-ESCANER-RFID.ino">TP2-ESCANER-RFID</a>, configurar el MCU utilizado y completar con los parametros de WiFi y broker MQTT correspondientes. También se deben configurar los pines de los sensores que se utilizan, y finalmente cargar el programa al microcontrolador.</p>
 </details>
 
 ---
 
-<!-- Prerequisitos APLICACION WEB -->
-<h1 id="prerequisites-app-web"> 🕸️ Prerequisitos-Aplicación Web</h1>
+<!-- Prerrequisitos APLICACION WEB -->
+<h1 id="prerequisites-app-web"> 🕸️ Prerrequisitos-Aplicación Web</h1>
 
 <details>
-  <summary>Prerequisitos-Aplicación Web</summary>
+  <summary>Prerrequisitos-Aplicación Web</summary>
   <p>Se requiere la última versión de python <a href="https://www.python.org/">https://www.python.org/</a>.</p>
   <p>Se requiere tener instalada la última versión de PostgreSQL <a href="https://www.postgresql.org/">https://www.postgresql.org/</a> configurada con una base de datos llamada supply-chain-platform (de preferencia).</p>
 </details>
@@ -149,13 +149,13 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
   <p>El directorio principal de Hyperledger Fabric es <a href="https://github.com/tpII/2023-G5-BLOCKCHAIN/tree/main/fabric-supply-chain">fabric-supply-chain</a>, estando allí, debe acceder al directorio test-network:</p>
   
   ```sh
-  $ cd test-network
+   cd test-network
   ```
 
 <p>Luego debe ejecutar el comando:</p>
 
 ```sh
-$ ./network.sh up createChannel -c mychannel -ca -s couchdb
+ ./network.sh up createChannel -c mychannel -ca -s couchdb
 ```
 
 <p>Esto genera 2 organizaciones, cada una con un peer, un single raft ordering service y crea un canal llamado mychannel, donde une a los peers de las 2 organizaciones. Tambien crea una CA por cada organización.</p>
@@ -163,15 +163,15 @@ $ ./network.sh up createChannel -c mychannel -ca -s couchdb
 <p>Para este sistema se requieren 3 organizaciones, por lo tanto:</p>
 
 ```sh
-$ cd addOrg3
-$ ./addOrg3.sh up -c mychannel -ca -s couchdb
+ cd addOrg3
+ ./addOrg3.sh up -c mychannel -ca -s couchdb
 ```
 
 <p>Volver a la carpeta test-network y hacer el deploy del chaincode:</p>
 
 ```sh
-$ cd ..
-$ ./network.sh deployCC -ccn basic -ccp ../chaincode-typescript/ -ccl typescript
+ cd ..
+ ./network.sh deployCC -ccn basic -ccp ../chaincode-typescript/ -ccl typescript
 ```
 
 <p>Ahora se puede probar el chaincode, se pueden setear las variables para actuar como organización 1:</p>
@@ -190,19 +190,19 @@ export CORE_PEER_ADDRESS=localhost:7051
 <p>Para inicializar la ledger con assets precargados:</p>
 
 ```sh
-$ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
 ```
 
 <p>Para obtener todos los assets:</p>
 
 ```sh
-$ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 ```
 
 <p>Para crear un asset:</p>
 
 ```sh
-$ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"Args":["CreateAsset","admin","wine6", "blanco", "Org1MSP", "2500", "52.9393", "42", "Las cabras", "2010", "52.9393", "52.9393"]}'
+ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"Args":["CreateAsset","admin","wine6", "blanco", "Org1MSP", "2500", "52.9393", "42", "Las cabras", "2010", "52.9393", "52.9393"]}'
 ```
 
 <h2>API REST</h2>
@@ -210,10 +210,10 @@ $ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.e
 <p>Finalizadas las pruebas del chaincode se puede levantar el servidor API REST y el servidor REDIS (que se encarga de la cola de tareas). Ir a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>
 
 ```sh
-$ cd ..
-$ cd rest-api-typescript
-$ npm install
-$ npm run build
+ cd ..
+ cd rest-api-typescript
+ npm install
+ npm run build
 ```
 
 > NO OLVIDAR EJECUTAR EL SCRIPT generateEnv.sh que está en la carpeta rest-api-typescript/scripts. Este script genera un archivo .env que se debe colocar en la carpeta principal rest-api-typescript.
@@ -221,14 +221,14 @@ $ npm run build
 <p>Luego se debe inicializar el server REDIS, que se encarga de mantener la cola de tareas que le van llegando en cada transacción:</p>
 
 ```sh
-$ export REDIS_PASSWORD=$(uuidgen)
-$ npm run start:redis	
+ export REDIS_PASSWORD=$(uuidgen)
+ npm run start:redis	
 ```
 
 <p>Finalmente iniciar el servidor API REST</p>
 
 ```
-$ npm run start:dev
+ npm run start:dev
 ```
 
 > Las API-KEYS correspondientes a cada organización estan en el archivo .env y deben ser enviadas en la cabecera de la petición HTTP al servidor REST para que la misma sea autorizada.
@@ -245,20 +245,20 @@ $ npm run start:dev
   <p>En el directorio raíz, crear el entorno virtual:</p>
 
   ```sh
-  $ python -m venv venv
+   python -m venv venv
   ```
 
   <p>Activar el entorno virtual:</p>
   
   ```sh
-  # venv\Scripts\activate # Windows
-  $ ./venv\Scripts\activate # Linux
+  
+   source venv/bin/activate # Linux
   ```
 
   <p>Instalar dependencias freezadas:</p>
 
   ```sh
-  $ pip install -r requirements-freezed.txt
+   pip install -r requirements-freezed.txt
   ```
 
   <p>Tener encendido el servidor de DB.</p>
@@ -268,13 +268,13 @@ $ npm run start:dev
   <p>Correr las migraciones para tener el sistema de usuarios:</p>
 
   ```sh
-  $ flask db upgrade
+   flask db upgrade
   ```
 
   <p>Iniciar el servidor de la aplicación web:</p>
 
   ```sh
-  $ flask run -h 0.0.0.0 --debug
+   flask run -h 0.0.0.0 --debug
   ```
 </details>
 
@@ -314,17 +314,17 @@ $ npm run start:dev
 
 <h1 id="bitacora">📖Bitácora</h1>
 
-<p>Se realizó un registro de todos los avances del proyecto en la <a href="https://github.com/tpII/2023-G5-BLOCKCHAIN/wiki/Bitacora">Bitacora</a>.</p>
+<p>Se realizó un registro de todos los avances del proyecto en la <a href="https://github.com/tpII/2025-G4-suministro-blockchain/wiki/Bitácora">Bitacora</a>.</p>
 
 <h1 id="authors">✒️ Autores</h1>
 
-* **Brian Llamocca** [![Repo](https://badgen.net/badge/icon/notBraii?icon=github&label)](https://github.com/notBraii)
+* **Lola Dell'Oso** [![Repo](https://badgen.net/badge/icon/loladelloso?icon=github&label)](https://github.com/loladelloso)
 
-* **Juan Martín Ercoli** [![Repo](https://badgen.net/badge/icon/Juanercoli?icon=github&label)](https://github.com/Juanercoli)
+* **Federica Montagna** [![Repo](https://badgen.net/badge/icon/montagna7?icon=github&label)](https://github.com/montagna7)
   
-*  **Joaquín Matto** [![Repo](https://badgen.net/badge/icon/momus53?icon=github&label)](https://github.com/momus53)
+*  **Juliana Soto** [![Repo](https://badgen.net/badge/icon/julianasoto5?icon=github&label)](https://github.com/julianasoto5)
 
-*  **Joaquín Stella** [![Repo](https://badgen.net/badge/icon/joaquin-stella?icon=github&label)](https://github.com/joaquin-stella)
+
 
 <h1 id="coordinador">📌 Coordinador</h1>
 
