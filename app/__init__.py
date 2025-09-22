@@ -45,9 +45,6 @@ login = LoginManager(app)
 # Redirige a login si no esta logeado cuando quiere ver endpoints con @login_required
 login.login_view = 'login'
 
-from flask_socketio import SocketIO
-
-socketio = SocketIO(app, async_mode='gevent', cors_allowed_origins="*")
 
 # Para solventar circular imports esto va abajo del todo (debido a que el modulo
 # routes importa la variable app de este modulo)
