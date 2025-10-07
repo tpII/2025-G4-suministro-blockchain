@@ -1,28 +1,23 @@
-# app/__init__.py
+# app/_init_.py
 
-# Habilita funcionalidad de socket
-import gevent
 # Objeto de Flask
-from gevent import monkey
-# Parchea librerias para que sean compatibles con gevent
-monkey.patch_all()
-
-
 from flask import Flask
 # Objeto de configuración
 from config import Config
 # Configurar CORS
 from flask_cors import CORS
-
+# Habilita funcionalidad de socket
+import gevent
 
 # DB ORM
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from gevent import monkey
 # Manejo de login
 from flask_login import LoginManager
 
-
+# Parchea librerias para que sean compatibles con gevent
+monkey.patch_all()
 
 # Instancia de la clase Flask
 app = Flask(__name__)
@@ -35,19 +30,15 @@ app.config.from_object(Config)
 
 # Instancia de DB
 db = SQLAlchemy(app)
-
 # Instancia del engine de migración
 migrate = Migrate(app, db)
 
 # Instancia de LoginManager
 login = LoginManager(app)
-
 # Redirige a login si no esta logeado cuando quiere ver endpoints con @login_required
 login.login_view = 'login'
-
 
 # Para solventar circular imports esto va abajo del todo (debido a que el modulo
 # routes importa la variable app de este modulo)
 # Almacena las rutas de la app
-
 from app import routes, models, mqtt

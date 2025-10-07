@@ -143,11 +143,26 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 
 ---
 <!-- Configuración del entorno -->
-<h1 id="conf-env"> ⚙️ Configuración del entorno</h1>
+<h1 id="conf-env">⚙️ Configuración del entorno</h1>
 <details>
   <summary>Configuración del entorno</summary>
-  <p> Se debe copiar el contenido del archivo .env.example en el archivo **local** .env, y luego completar con los datos correspondientes. Finalmente, se debe ejecutar el script generateEnv.py para generar la cabecera config.h que necesita el archivo .ino.
+
+  <p>
+    Se debe crear el archivo de configuración <code>.env</code> y copiar el contenido del archivo <code>.env.example</code>. 
+    Completar con los datos correspondientes. Finalmente, se debe ejecutar el script 
+    <code>generateEnv.py</code> para generar la cabecera <code>config.h</code> que necesita el archivo <code>.ino</code>.
+  </p>
+
+  <p>
+    <strong>Nota:</strong> Tener en cuenta que la IP que utiliza el WSL no coincide con la de la PC. 
+    Para obtener la IP de WSL, ejecutar:
+  </p>
+  <p> Desde Windows PowerShell</p>
+  <pre><code>wsl hostname -I</code></pre>
+  <p> Desde Terminal WSL </p>
+  <pre><code>ip addr show eth0</code></pre>
 </details>
+
 
 
 
@@ -215,6 +230,11 @@ export CORE_PEER_ADDRESS=localhost:7051
  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"Args":["CreateAsset","admin","wine6", "blanco", "Org1MSP", "2500", "52.9393", "42", "Las cabras", "2010", "52.9393", "52.9393"]}'
 ```
 
+ <p>
+    <strong>Nota:</strong> Una vez inicializada la blockchain, para volver a levantarla solo se deben levantar los contenedores Docker. Esto se puede hacer con el siguiente comando:
+    <pre><code>docker start $(docker ps -a -q)</code></pre>
+    <p>Tener en cuenta que levanta <strong>TODOS</strong> los contenedores Docker.</p> 
+  </p>
 <h2>API REST</h2>
 
 <p>Finalizadas las pruebas del chaincode se puede levantar el servidor API REST y el servidor REDIS (que se encarga de la cola de tareas). Ir a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>

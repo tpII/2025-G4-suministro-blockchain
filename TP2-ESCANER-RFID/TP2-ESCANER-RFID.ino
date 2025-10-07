@@ -1,6 +1,7 @@
 #define MCU_ESP8266
-#include <./config.h>
 //#define MCU_ESP32
+#include "config.h"
+
 
 // Para conectar al WiFi. (Seleccionar MCU) 
 #ifdef MCU_ESP8266
@@ -54,7 +55,7 @@ static bool RFID_REQUEST = false;
 // Se selecciona el modelo de DHT
 #define DHTTYPE DHT11
 // Pin del sensor DHT11
-#define dht_dpin 26
+#define dht_dpin 4
 //Instancia de DHT11
 DHT dht(dht_dpin,DHTTYPE);
 
@@ -79,7 +80,7 @@ void setup() {
   rfid.PCD_Init();
 
   //Inicializar DHT11
-//  dht.begin();
+  dht.begin();
 
   // Inicializar WiFi
   setup_wifi();
@@ -219,6 +220,7 @@ void scan_rfid(){
     // Si se lee un TAG RFID
     if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
       String uid = "";
+      Serial.println("ENTRO");
       // Se construye el UID
       for (int i = 0; i < rfid.uid.size; i++) {
         uid += String(rfid.uid.uidByte[i] < 0x10 ? "0" : "");
