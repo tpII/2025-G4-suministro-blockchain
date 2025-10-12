@@ -1,7 +1,20 @@
-// Para conectar al WiFi (en caso de usar ESP8266 usar la libreria ESP8266WiFi)
-#include <WiFi.h> 
+#define MCU_ESP8266
+//#define MCU_ESP32
+#include "config.h"
+
+
+// Para conectar al WiFi. (Seleccionar MCU) 
+#ifdef MCU_ESP8266
+  #include <ESP8266WiFi.h>
+#elif defined(MCU_ESP32)
+  #include <WiFi.h>ds
+#else 
+  #error Debe definir MCU_ESP8266 o MCU_ESP32 antes de compilar.
+#endif
+
 // Para usar el escaner RFID
 #include <MFRC522.h>
+#include <SPI.h>
 // Para usar el sensor de temperatura y humedad DHT11
 #include <DHT.h>
 // Para usar PROTOCOLO MQTT
@@ -11,15 +24,15 @@
 
 /* RED WiFi*/
 // Nombre de red
-const char* ssid = "Fibertel WiFi837 2.4GHz";  
+const char* ssid = WIFI_SSID;  //en .env
 // Contraseña de red
-const char* password = "42675077";  
+const char* password = WIFI_PASSWORD;  //en .env
 
 /* MQTT */
 // Direccion IP del servidor MQTT
-const char* mqtt_server = "192.168.0.138";  
+const char* mqtt_server = MQTT_SERVER;  
 // Puerto MQTT predeterminado
-const int mqtt_port = 1883;  
+const int mqtt_port = MQTT_PORT;  
 
 // Instancias de cliente MQTT
 WiFiClient espClient;
@@ -27,8 +40,8 @@ PubSubClient client(espClient);
 
 /* RFID */
 // Pines del lector RFID
-#define SS_PIN  5  // ESP32 pin GPIO5 
-#define RST_PIN 27 // ESP32 pin GPIO27 
+#define SS_PIN  15  // ESP8266 pin GPIO15 (D8) - ESP32 pin GPIO5 
+#define RST_PIN 0 // ESP8266 pin GPIO0 (D3) - ESP32 pin GPIO27 
 // Pin para manejar LED escaneo RFID
 #define RFID_LED_PIN 14 // ESP32 pin GPIO14
 
@@ -42,7 +55,7 @@ static bool RFID_REQUEST = false;
 // Se selecciona el modelo de DHT
 #define DHTTYPE DHT11
 // Pin del sensor DHT11
-#define dht_dpin 26
+#define dht_dpin 4
 //Instancia de DHT11
 DHT dht(dht_dpin,DHTTYPE);
 
@@ -60,7 +73,7 @@ void setup() {
   Serial.begin(115200);
 
   // Configura el LED para el escaneo RFID como SALIDA
-  pinMode(RFID_LED_PIN, OUTPUT);
+  //pinMode(RFID_LED_PIN, OUTPUT);
 
   // Inicializar SPI y el lector RFID
   SPI.begin();
@@ -73,7 +86,7 @@ void setup() {
   setup_wifi();
 
   // Inicializar SAP (red local) 
-  //setup_SAP();
+  setup_SAP();
 
   // Asigna servidor MQTT y callback
   client.setServer(mqtt_server, mqtt_port);
@@ -102,7 +115,7 @@ void loop() {
     send_dht();
   } else {
     // Apagar LED
-    digitalWrite(RFID_LED_PIN, LOW);
+    //digitalWrite(RFID_LED_PIN, LOW);
   }
 }
 
@@ -110,6 +123,7 @@ void loop() {
 void setup_wifi() {
 
   // Conectar a la red Wi-Fi
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
       delay(1000);
@@ -202,10 +216,11 @@ void send_heartbeat(){
 void scan_rfid(){
   
   // Encender LED de ESCANEO
-    digitalWrite(RFID_LED_PIN, HIGH);
+    //digitalWrite(RFID_LED_PIN, HIGH);
     // Si se lee un TAG RFID
     if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
       String uid = "";
+      Serial.println("ENTRO");
       // Se construye el UID
       for (int i = 0; i < rfid.uid.size; i++) {
         uid += String(rfid.uid.uidByte[i] < 0x10 ? "0" : "");

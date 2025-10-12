@@ -52,6 +52,7 @@ ORG2_APIKEY=$(uuidgen)
 
 ORG3_APIKEY=$(uuidgen)
 
+
 ENV_END
  
 if [ "${AS_LOCAL_HOST}" = "true" ]; then
@@ -81,6 +82,7 @@ HLF_CONNECTION_PROFILE_ORG2=$(cat ${CONNECTION_PROFILE_FILE_ORG2} | jq -c '.peer
 HLF_CONNECTION_PROFILE_ORG2=$(cat ${CONNECTION_PROFILE_FILE_ORG3} | jq -c '.peers["peer0.org3.example.com"].url = "grpcs://peer0.org3.example.com:11051" | .certificateAuthorities["ca.org2.example.com"].url = "https://ca.org2.example.com:8054"')
 
 REDIS_HOST=redis
+
 
 WITH_HOSTNAME_END
 

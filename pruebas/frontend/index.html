@@ -1,0 +1,35 @@
+<h2>Crear Asset</h2>
+<form id="assetForm">
+  <label>ID: <input type="text" name="ID" required /></label><br/>
+  <label>Varietal: <input type="text" name="Varietal" required /></label><br/>
+  <label>Owner: <input type="text" name="Owner" required /></label><br/>
+  <label>Price: <input type="number" name="Price" required /></label><br/>
+  <label>Temperature: <input type="number" name="Temperature" required /></label><br/>
+  <label>Humidity: <input type="number" name="Humidity" required /></label><br/>
+  <label>Winery: <input type="text" name="Winery" required /></label><br/>
+  <label>Year: <input type="text" name="Year" required /></label><br/>
+  <label>Latitude: <input type="number" step="0.0001" name="Latitude" required /></label><br/>
+  <label>Longitude: <input type="number" step="0.0001" name="Longitude" required /></label><br/>
+  <button type="submit">Crear Asset</button>
+</form>
+
+<script>
+const form = document.getElementById('assetForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(form);
+  const asset = {};
+  formData.forEach((value, key) => asset[key] = isNaN(value) ? value : parseFloat(value));
+
+  // Enviar al backend
+  const response = await fetch('/api/createAsset', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(asset)
+  });
+
+  const result = await response.json();
+  alert(JSON.stringify(result));
+});
+</script>

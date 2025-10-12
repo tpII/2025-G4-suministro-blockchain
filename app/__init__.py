@@ -1,4 +1,4 @@
-# app/__init__.py
+# app/_init_.py
 
 # Objeto de Flask
 from flask import Flask
@@ -7,17 +7,17 @@ from config import Config
 # Configurar CORS
 from flask_cors import CORS
 # Habilita funcionalidad de socket
-import eventlet
+import gevent
 
 # DB ORM
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from gevent import monkey
 # Manejo de login
 from flask_login import LoginManager
 
-# Parchea librerias para que sean compatibles con eventlet
-eventlet.monkey_patch()
+# Parchea librerias para que sean compatibles con gevent
+monkey.patch_all()
 
 # Instancia de la clase Flask
 app = Flask(__name__)

@@ -84,7 +84,7 @@ export const createGateway = async (
   const options: GatewayOptions = {
     wallet,
     identity,
-    discovery: { enabled: true, asLocalhost: config.asLocalhost },
+    discovery: { enabled: false, asLocalhost: config.asLocalhost },
     eventHandlerOptions: {
       commitTimeout: config.commitTimeout,
       endorseTimeout: config.endorseTimeout,

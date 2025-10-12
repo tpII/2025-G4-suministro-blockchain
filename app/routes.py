@@ -21,6 +21,7 @@ import requests
 def get_org():
     if current_user.is_authenticated:
         if current_user.role == "Productor":
+            
             return "Org1MSP"
         elif current_user.role == "Transportador":
             return "Org2MSP"
@@ -31,6 +32,7 @@ def get_org():
 def get_api_key():
     if current_user.is_authenticated:
         if current_user.role == "Productor":
+            print(os.environ.get('API_KEY_PRODUCTOR'))
             return str(os.environ.get('API_KEY_PRODUCTOR'))
         elif current_user.role == "Transportador":
             return str(os.environ.get('API_KEY_TRANSPORTADOR'))
@@ -150,7 +152,6 @@ def handle_error(response):
 @app.route("/read_asset", methods=['GET', 'POST'])
 def read_asset():
     form = ReadAssetForm()
-
     if request.method == 'POST' and form.enviar_boton.data and form.validate_on_submit():
         rfid_value = form.rfid_tag.data
 
@@ -158,6 +159,7 @@ def read_asset():
         headers = {
             "X-api-key": get_api_key(),
         }
+        
         try:
             response = requests.get(url, headers=headers)
 
@@ -168,6 +170,7 @@ def read_asset():
                     respuesta_api = response.json()
                     flash(f"Respuesta de la API: {respuesta_api}", 'success')
                     if respuesta_api['Owner']  == "Org1MSP":
+                        print("Hola")
                         respuesta_api['Owner'] = "Productor"
                     elif respuesta_api['Owner'] == "Org2MSP":
                         respuesta_api['Owner'] = "Transportador"
@@ -182,7 +185,7 @@ def read_asset():
 
         except requests.RequestException as e:
             flash(f"Error en la solicitud: {e}", 'error')
-
+    
     return render_template('read_asset.html', form=form)
 
 @app.route("/new_asset", methods=['GET', 'POST'])
@@ -415,15 +418,22 @@ def asset_history(asset_id):
         print(f"Error en la solicitud: {e}")
 
     return render_template("asset_history.html", response=response)
-
 @app.route('/assets')
 def assets():
     url = f"{os.environ.get('API_ADDRESS')}/api/assets"
     headers = {
         "X-api-key": get_api_key(),
     }
+
+    print("=== LLAMANDO A LA API ===")
+    print(f"URL: {url}")
+    print(f"API Key usada: {headers['X-api-key']}")
+    print(f"Organización actual: {get_org()}")
+
     try:
         response = requests.get(url, headers=headers)
+        print(f"Status code: {response.status_code}")
+        print(f"Response text: {response.text[:500]}")  # Solo los primeros 500 caracteres
 
         if response is None:
             raise requests.RequestException("No se recibió respuesta.")
@@ -446,10 +456,13 @@ def assets_historial():
     headers = {
         "X-api-key": get_api_key(),
     }
+    response=None
+    
     try:
         response = requests.get(url, headers=headers)
-
+        print(response)
         if response is None:
+            print("----Response None------------")
             raise requests.RequestException("No se recibió respuesta.")
         if response.status_code == 200:
             flash(f"Respuesta de la API: EXITOSA", 'success')
