@@ -1,44 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!-- Sección a la derecha -->
-    {% if response %}
-        <div class="table-responsive overflow-scroll" style="height:500px;width:75vw;">
-            <!-- Hacer algo con la respuesta exitosa -->
-            <table class="table table-sm overflow-scroll table-bordered border-secondary">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>ID</th>
-                        <th>Etapa</th>
-                        <th>Precio</th>
-                        <th>Bodega</th>
-                        <th>Uva</th>
-                        <th>Año</th>
-                        <th>Temperatura</th>
-                        <th>Humedad</th>
-                        <th>Latitud</th>
-                        <th>Longitud</th>
-                        <th>Historial</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for asset in response %}
-                        <tr>
-                            <td>{{ asset.ID }}</td>
-                            <td>{{ asset.Owner }}</td>
-                            <td>{{ asset.Price }}</td>
-                            <td>{{ asset.Winery }}</td>
-                            <td>{{ asset.Varietal }}</td>
-                            <td>{{ asset.Year }}</td>
-                            <td>{{ asset.Temperature }}</td>
-                            <td>{{ asset.Humidity }}</td>
-                            <td>{{ asset.Latitude }}</td>
-                            <td>{{ asset.Longitude }}</td>
-                            <td><a href="{{ url_for('asset_history', asset_id=asset.ID) }}" class="btn btn-primary">Historial</a></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="container-fluid px-1">
+   
+                <h2 class="section-title">
+                    Listado de Activos 
+                </h2>
+       
+
+        {% if response %}
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+           
+
+            <div class="card-body bg-light p-0 ">
+                <div class="table-responsive rounded-bottom ">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-secondary text-center">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Etapa</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">Bodega</th>
+                                <th scope="col">Uva</th>
+                                <th scope="col">Año</th>
+                                <th scope="col">Temp.</th>
+                                <th scope="col">Humedad</th>
+                                <th scope="col">Latitud</th>
+                                <th scope="col">Longitud</th>
+                                <th scope="col">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            {% for asset in response %}
+                            <tr>
+                                <td class="fw-semibold">{{ asset.ID }}</td>
+                                <td>{{ asset.Owner }}</td>
+                                <td>${{ asset.Price }}</td>
+                                <td>{{ asset.Winery }}</td>
+                                <td>{{ asset.Varietal }}</td>
+                                <td>{{ asset.Year }}</td>
+                                <td>{{ asset.Temperature }} °C</td>
+                                <td>{{ asset.Humidity }} %</td>
+                                <td>{{ asset.Latitude }}</td>
+                                <td>{{ asset.Longitude }}</td>
+                                <td>
+                                    <a href="{{ url_for('asset_history', asset_id=asset.ID) }}" 
+                                       class="btn btn-secondary  btn-sm rounded-pill px-3 shadow-sm">
+                                        Historial
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    {% endif %}
+        {% else %}
+        <div class="alert alert-secondary text-center mt-4 shadow-sm rounded-3">
+            No hay datos de trazabilidad disponibles.
+        </div>
+        {% endif %}
+    </div>
 {% endblock %}

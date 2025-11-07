@@ -1,339 +1,218 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="content">
-<h1>  Nuevo asset </h1>
+<main class="content-body pt-3 d-flex justify-content-center"> 
+    <div class="p-4 rounded box-shadow bg-light" style="max-width: 1200px; width: 100%;">
+        <h1 class="section-title text-secondary mb-4 text-center">Nuevo Asset</h1>
 
-<div class="popup">
-    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20210428125647/barcode1-300x158.png">
-    <div class="popup-2">
-        <div id="tiempo_restante_timeout"></div>
-        <button id="cerrarPopupBtn">Cerrar Popup</button>
+        {% if mensaje_exito %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">✅ ¡Procesado con Éxito!</h4>
+            <p>{{ mensaje_exito }}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endif %}
+
+        {% if mensaje_error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">❌ Error:</h4>
+            <p>{{ mensaje_error }}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endif %}
+
+        <form action="" method="POST" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+
+            <h5 class="text-purple fw-bold mt-4 mb-3">Identificación RFID</h5>
+
+            <div class="row g-3 mb-4 align-items-center">
+                <div class="col-md-9">
+                    <div class="form-floating">
+                        {{ form.rfid_tag(class="form-control" + (" is-invalid" if form.rfid_tag.errors else ""), placeholder="RFID Tag", id="rfid_tag") }}
+                        <label for="rfid_tag">Etiqueta RFID</label>
+                    </div>
+                    {% for error in form.rfid_tag.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-3 d-grid">
+                    {{ form.llenar_boton_rfid(class="btn btn-primary fw-bold p-3", id="llenar_boton_rfid") }}
+                </div>
+            </div>
+            
+            <h5 class="text-purple fw-bold mt-4 mb-3">Detalles del Vino</h5>
+
+            <div class="row g-3 mb-3">
+                {% for field_name in ['precio', 'bodega', 'uva', 'cosecha'] %}
+                    {% set field = form[field_name] %}
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ field(class="form-control" + (" is-invalid" if field.errors else ""), placeholder=field.label.text) }}
+                            <label for="{{ field.id }}">{{ field.label.text }}</label>
+                        </div>
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <h5 class="text-purple fw-bold mt-4 mb-3">Condiciones Ambientales</h5>
+
+            <div class="row g-3 mb-4 align-items-center">
+                {% for field_name in ['temperatura', 'humedad'] %}
+                    {% set field = form[field_name] %}
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ field(class="form-control" + (" is-invalid" if field.errors else ""), placeholder=field.label.text) }}
+                            <label for="{{ field.id }}">{{ field.label.text }}</label>
+                        </div>
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="col-md-4 d-grid">
+                    {{ form.llenar_boton_dht(class="btn btn-primary fw-bold p-3", id="llenar_boton_dht") }}
+                </div>
+            </div>
+
+            <h5 class="text-purple fw-bold mt-4 mb-3">Ubicación Geográfica</h5>
+
+            <div class="row g-3 mb-3">
+                {% for field_name in ['latitud', 'longitud'] %}
+                    {% set field = form[field_name] %}
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ field(class="form-control" + (" is-invalid" if field.errors else ""), placeholder=field.label.text, id=field_name) }}
+                            <label for="{{ field.id }}">{{ field.label.text }}</label>
+                        </div>
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="map" class="mb-4 rounded shadow-sm" style="height:350px;"></div>
+
+            <div class="d-grid gap-2 col-md-6 mx-auto mt-5">
+                {{ form.enviar_boton(class="btn btn-secondary fw-bold p-3 text-uppercase") }}
+            </div>
+
+        </form>
+    </div>
+</main>
+
+<div id="overlay" style="display: none;"></div>
+<div class="popup" id="rfid-popup" style="display: none;">
+    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20210428125647/barcode1-300x158.png" style="max-width: 150px; height: auto;" alt="Escaneo RFID">
+    <div class="popup-2 text-center mt-2">
+        <div id="tiempo_restante_timeout" class="fw-bold text-main mb-2"></div>
+        <button id="cerrarPopupBtn" class="btn btn-sm btn-primary">Cerrar Escáner</button>
     </div>
 </div>
 
-{% if mensaje_exito %}
-<div style="color: green;">
-    <h2>Procesado:</h2>
-    <p>{{ mensaje_exito }}</p>
-</div>
-{% endif %}
-
-
-{% if mensaje_error %}
-<div style="color:red;">
-    <h2>Error:</h2>
-    <p>{{ mensaje_error }}</p>
-</div>
-{% endif %}
-
-<form action="" method="POST" class="d-flex flex-column text-secondary m-2 gap-3">
-    {{ form.hidden_tag() }}
-    <div class="d-flex gap-3">
-    {{ form.rfid_tag.label(style="width:100px;") }} {{ form.rfid_tag(size=32) }}
-    {{ form.llenar_boton_rfid(class="btn btn-primary") }}
-    {% if form.rfid_tag.errors %}
-    <div class="text-danger">
-        {{ form.rfid_tag.errors|join(', ') }}
-    </div>
-    {% endif %}
-    </div>
-    <div class="d-flex gap-3">
-    {{ form.precio.label(style="width:100px;") }} {{ form.precio(size=32) }}
-    </div>
-    {% if form.precio.errors %}
-    <div class="text-danger">
-        {{ form.precio.errors|join(', ') }}
-    </div>
-    {% endif %}
-
-    <div class="d-flex gap-3">
-    {{ form.bodega.label(style="width:100px;") }} {{ form.bodega(size=32) }}
-    </div>
-    {% if form.bodega.errors %}
-    <div class="text-danger">
-        {{ form.bodega.errors|join(', ') }}
-    </div>
-    {% endif %}
-    <div class="d-flex gap-3">
-    {{ form.uva.label(style="width:100px;") }} {{ form.uva(size=32) }}
-    </div>
-    {% if form.uva.errors %}
-    <div class="text-danger">
-        {{ form.uva.errors|join(', ') }}
-    </div>
-    {% endif %}
-    <div class="d-flex gap-3">
-    {{ form.cosecha.label(style="width:100px;") }} {{ form.cosecha(size=32) }}
-    </div>
-    {% if form.cosecha.errors %}
-    <div class="text-danger">
-        {{ form.cosecha.errors|join(', ') }}
-    </div>
-    {% endif %}
-    <div class="d-flex gap-3">
-    {{ form.llenar_boton_dht(class="btn btn-primary") }}
-    </div>
-    <div class="d-flex gap-3">
-    {% if form.temperatura.errors %}
-    <div class="text-danger">
-        {{ form.temperatura.errors|join(', ') }}
-    </div>
-    {% endif %}
-    {{ form.temperatura.label(style="width:100px;") }} {{ form.temperatura(size=32) }}
-    {% if form.humedad.errors %}
-    <div class="text-danger">
-        {{ form.humedad.errors|join(', ') }}
-    </div>
-    {% endif %}
-    {{ form.humedad.label(style="width:100px;") }} {{ form.humedad(size=32) }}
-    </div>
-
-    <div class="d-flex gap-3">
-    {{ form.latitud.label(style="width:100px;") }} {{ form.latitud(size=32) }}
-    </div>
-    {% if form.latitud.errors %}
-    <div class="text-danger">
-        {{ form.latitud.errors|join(', ') }}
-    </div>
-    {% endif %}
-    <div class="d-flex gap-3">
-    {{ form.longitud.label(style="width:100px;") }} {{ form.longitud(size=32) }}
-    </div>
-    {% if form.longitud.errors %}
-    <div class="text-danger">
-        {{ form.longitud.errors|join(', ') }}
-    </div>
-    {% endif %}
-    <div id="map" style="height:250px;"></div>
-
-    <div class="d-flex gap-3">
-    {{ form.enviar_boton(class="btn btn-secondary") }}
-    </div>
-</form>
-
-<div id="overlay"  style="
-position: fixed;
-z-index: 1;
-min-height: 100vh;
-width: 100%;
-left: 0;
-top: 0;
-background: rgba(0,0,0, .5);
-display: none;"></div>
-
-</div>
-
-<style>​
-
-#overlay {
-content: "";
-position: fixed;
-z-index: 1;
-min-height: 100vh;
-width: 100%;
-left: 0;
-top: 0;
-background: rgba(0,0,0, .5);
-display: none;
-}
-
-.popup {
-border-radius: 16px;
-position: fixed;
-height: 200px;
-
-width: 35%;
-z-index: 2;
-background: #ffff;
-margin: auto;
-border: 2px solid black;
-
-display: flex;
-flex-direction: row;
-flex-wrap: wrap;
-justify-content: center;
-align-items: center;
-display: none;
-}
-
-.popup-2 {
-border-radius: 8px;
-position: relative;
-height: 20px;
-
-width: 35%;
-z-index: 2;
-margin: auto;
-
-display: flex;
-flex-direction: row;
-flex-wrap: wrap;
-justify-content: center;
-align-items: center;
-display: none;
-
-}
-.popup::after {
-border-radius: 16px;
-display:relative;
-content:"ESCANEANDO RFID...";
-text-align: center;
-position: absolute;
-background-color: lightgreen;
-margin: 10px;
-padding: 5px;
-width: 80%;
-border: 2px solid black;
-
-animation: MoveUpDown 3s ease-in-out infinite;
-}
-      
-
-@keyframes MoveUpDown {
-    0% {
-        transform: translateY(-70px);
-    }
-    50% {
-        transform: translateY(70px);
-    }
-    100% {
-        transform: translateY(-70px)
-    }
-}
-</style>
-
-<script type="text/javascript" charset="utf-8">
-
+<script>
 $(document).ready(function() {
     var socket = io.connect('http://' + document.domain + ':' + location.port);
-    console.log(socket);
-    subscribeToChannel('heartbeat');
-    disableButton();
-    // Variable para rastrear el estado del mensaje de heartbeat
-    var timeoutId;  // Variable para almacenar el ID del temporizador
-    try {
+    var rfidPopup = $('.popup');
+    var overlay = $('#overlay');
 
-        var map = L.map('map').setView([-34.9214, -57.9545], 13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        var marker = null;  // Variable para almacenar el marcador actual
-    
-        map.on('click', function(event) {
-            var latitud = event.latlng.lat;
-            var longitud = event.latlng.lng;
-
-            // Actualiza los campos de entrada con las coordenadas
-            document.getElementById('latitud').value = latitud;
-            document.getElementById('longitud').value = longitud;
-
-            // Eliminar el marcador anterior si existe
-            if (marker !== null) {
-                map.removeLayer(marker);
-            }
-
-            // Crear y agregar un nuevo marcador al mapa
-            marker = L.marker([latitud, longitud]).addTo(map);
-        });
-
-    } catch (error) {
-        // Manejar la excepción
-        console.error('Ocurrió una excepción:', error.message);
+    // Función para mostrar el popup
+    function showPopup() {
+        overlay.fadeIn(200);
+        rfidPopup.fadeIn(200);
     }
-socket.on('heartbeat', function(data) {
-    if (data.payload === 'A') {
-        // Si recibe un mensaje de heartbeat 'alive', habilita el botón
-        document.getElementById('llenar_boton_rfid').disabled = false;
-        document.getElementById('llenar_boton_dht').disabled = false;
-        // Reinicia el temporizador cada vez que se recibe un mensaje de heartbeat
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(disableButton, 3000);  // Deshabilita el botón después de 3 segundos
-    }
-});
-
-function disableButton() {
-    // Deshabilita el botón para escanear el RFID y DHT
-    document.getElementById('llenar_boton_rfid').disabled = true;
-    document.getElementById('llenar_boton_dht').disabled = true;
-}
-
-// Inicialmente, configura un temporizador para deshabilitar el botón después de 10 segundos
-timeoutId = setTimeout(disableButton, 1000);  // Deshabilita el botón después de 10 segundos inicialmente
-
-    // Función para suscribirse a un canal MQTT
-    function subscribeToChannel(channel) {
-        socket.emit('subscribe_mqtt_channel', { channel: channel });
-    }
-
-    // Función para desuscribirse de un canal MQTT
-    function unsubscribeFromChannel(channel) {
-        socket.emit('unsubscribe_mqtt_channel', { channel: channel });
-    }
-
-    // Escuchar eventos de mensajes RFID
-    function handleRFIDMessage(data) {
-        document.getElementById('rfid_tag').value = data['payload'];
-        unsubscribeFromChannel('rfid');
-        $(".popup, .popup-2, #overlay").hide();
-        // Eliminar el controlador después de recibir el mensaje una vez
+    // Función para ocultar el popup
+    function hidePopup() {
+        overlay.fadeOut(200);
+        rfidPopup.fadeOut(200);
+        unsubscribe('rfid');
+        socket.emit('rfid_request',{request:'OFF'});
         socket.off('rfid', handleRFIDMessage);
     }
+    function subscribe(channel){ socket.emit('subscribe_mqtt_channel',{channel}); }
+    function unsubscribe(channel){ socket.emit('unsubscribe_mqtt_channel',{channel}); }
+    
+    // --- Lógica del Mapa Leaflet ---
+    var map = L.map('map').setView([-34.9214, -57.9545], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+    var marker = null;
+    map.on('click', function(event) {
+        var lat = event.latlng.lat;
+        var lon = event.latlng.lng;
+        $('#latitud').val(lat);
+        $('#longitud').val(lon);
+        if(marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon]).addTo(map);
+    });
 
-    // Función para manejar el clic en el botón "ESCANEAR RFID"
-    $('#llenar_boton_rfid').click(function(event) {
-        $("#overlay").show();
-        $('.popup, .popup-2').css('display', 'flex');
-        // Evitar el envío automático del formulario
-        event.preventDefault(); 
-        subscribeToChannel('rfid');
-        // Encender escaner RFID
-        socket.emit('rfid_request', { request: 'ON' });
-        // Agregar controlador para el evento 'mqtt_message'
+    // --- Heartbeat & botones ---
+    var timeoutId;
+    function disableButton() {
+        $('#llenar_boton_rfid').prop('disabled', true);
+        $('#llenar_boton_dht').prop('disabled', true);
+    }
+    timeoutId = setTimeout(disableButton, 1000);
+    socket.on('heartbeat', function(data){
+        if(data.payload==='A'){
+            $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', false);
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(disableButton, 3000);
+        }
+    });
+
+    // --- Lógica del Botón RFID ---
+    function handleRFIDMessage(data){
+        $('#rfid_tag').val(data.payload);
+        hidePopup(); // Oculta el popup al recibir el dato
+    }
+
+    $('#llenar_boton_rfid').click(function(e){
+        e.preventDefault();
+        showPopup();
+        subscribe('rfid');
+        socket.emit('rfid_request',{request:'ON'});
         socket.on('rfid', handleRFIDMessage);
     });
+    
+    // --- Lógica del Botón DHT ---
+    $('#llenar_boton_dht').click(function(e){
+        e.preventDefault();
+        
+        // Función de callback para DHT (temperatura)
+        function handleTempMessage(d){ 
+            $('#temperatura').val(d.payload); 
+            unsubscribe('temp'); 
+            socket.off('temp', handleTempMessage);
+        }
+        
+        // Función de callback para DHT (humedad)
+        function handleHumMessage(d){ 
+            $('#humedad').val(d.payload); 
+            unsubscribe('hum'); 
+            socket.off('hum', handleHumMessage);
+        }
 
-    // Escuchar eventos de mensajes TEMP
-    function handleTempMessage(data) {
-        document.getElementById('temperatura').value = data['payload'];
-        unsubscribeFromChannel('temp');
-        // Eliminar el controlador después de recibir el mensaje una vez
-        socket.off('temp', handleTempMessage);
-    }
-
-    // Escuchar eventos de mensajes TEMP
-    function handleHumMessage(data) {
-        document.getElementById('humedad').value = data['payload'];
-        unsubscribeFromChannel('hum');
-        // Eliminar el controlador después de recibir el mensaje una vez
-        socket.off('hum', handleTempMessage);
-    }
-
-    $('#llenar_boton_dht').click(function(event) {
-        // Evitar el envío automático del formulario
-        event.preventDefault(); 
-        subscribeToChannel('temp');
-        subscribeToChannel('hum');
-        // Encender escaner DHT
-        socket.emit('dht_request', { request: 'ON' });
-        // Agregar controlador para el evento 'mqtt_message'
+        subscribe('temp'); 
+        subscribe('hum');
+        socket.emit('dht_request',{request:'ON'});
+        
         socket.on('temp', handleTempMessage);
         socket.on('hum', handleHumMessage);
-        // Desactivar escaner DHT
-        socket.emit('dht_request', { request: 'OFF' });
+        
+        // NOTA: Es común que 'dht_request:OFF' se envíe *después* de un breve retraso
+        // o después de recibir el primer dato, dependiendo de la implementación del hardware.
+        // Aquí lo dejamos al final de la lógica del cliente para simplificar.
+        socket.emit('dht_request',{request:'OFF'});
     });
 
-    // Funcion para manejar el boton de cerrar-popup
-    $('#cerrarPopupBtn').click(function(event) {
-        unsubscribeFromChannel('rfid');
-        // Apagar escaner RFID
-        socket.emit('rfid_request', { request: 'OFF' });
-        $(".popup, .popup-2, #overlay").hide();
+    // --- Botón de Cerrar Popup ---
+    $('#cerrarPopupBtn').click(function(){
+        hidePopup();
     });
 });
-    
 </script>
-
 {% endblock %}

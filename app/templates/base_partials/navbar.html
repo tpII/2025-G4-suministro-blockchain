@@ -1,30 +1,40 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top shadow-sm">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        
+        <button class="btn btn-secondary d-lg-none me-3" type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#sidebar-container" 
+                aria-controls="sidebar-container" 
+                aria-expanded="false" 
+                aria-label="Toggle navigation">
+            <ion-icon name="menu-outline" size="large" style="color: var(--primary);"></ion-icon>
         </button>
         
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 mt-md-0 mt-3">
-                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ url_for('static', filename='img/cat.jpg') }}" class="img-fluid rounded-circle avatar me-2">
-                    {{ current_user.username }}
+        <a class="navbar-brand d-lg-none fw-bold" href="#">
+            <span class="text-primary">Supply</span><span class="text-secondary">-chain</span>
+        </a>
+
+        <div class="d-flex ms-auto align-items-center">
+            
+            <form class="d-flex d-none d-md-block me-3" role="search">
+                <div class="input-group">
+                    
+                </div>
+            </form>
+            
+            <div class="dropdown">
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://ui-avatars.com/api/?name={{ current_user.username.capitalize() }}&background=DBEDEC&color=FFFF&bold=true" class="avatar me-2" alt="Avatar de usuario">
+                    <span class="d-none d-md-block text-secondary fw-bold">{{ current_user.username.capitalize() }}</span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end bg-primary ">
-                    <li class="d-md-none"><a href="{{ url_for('index') }}" class="d-block text-secondary fw-bold p-3"><ion-icon name="apps" class="me-2 lead"></ion-icon>Tablero</a></li>
-                    <li class="d-md-none"><a href="{{ url_for('read_asset') }}" class="d-block text-secondary fw-bold p-3"><ion-icon name="pricetags" class="me-2 lead"></ion-icon>Escanear</a></li>
-                    {% if current_user.role != "Cliente" %}
-                        <li class="d-md-none"><a href="{{ url_for('assets') }}" class="d-block text-secondary fw-bold p-3"><ion-icon name="layers" class="me-2 lead"></ion-icon></ion-icon>Mis assets</a></li>
-                        <li class="d-md-none"><a href="{{ url_for('assets_historial') }}" class="d-block text-secondary fw-bold p-3"><ion-icon name="globe" class="me-2 lead"></ion-icon></ion-icon>Historiales</a></li>
-                            {% if current_user.role != "Transportador" %}
-                            <li class="d-md-none"><a href="{{ url_for('new_asset') }}" class="d-block text-secondary fw-bold p-3"><ion-icon name="wine" class="me-2 lead"></ion-icon>Nuevo asset</a></li>
-                            {% endif %}
-                    {% endif %}
-                    <li><a class="dropdown-item dropdown-link" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                    <li><a class="dropdown-item" href="#">Configuración</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
                 </ul>
-                </li>
-            </ul>
+            </div>
+            
         </div>
     </div>
 </nav>

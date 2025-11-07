@@ -1,39 +1,80 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <section>
-        <div class="d-flex flex-column align-items-center justify-content-center text-secondary bg-primary content">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" class="img-fluid pb-2 mb-4 border-bottom border-black" alt="LOGO">
-            <h1>Registrarse</h1>
-            <form action="" method="post">
+    <main class="login-container">
+        <div class="p-4 rounded shadow-lg bg-light" style="max-width: 450px; width: 100%;">
+            
+            <div class="text-center mb-4">
+                 <img src="{{ url_for('static', filename='img/logo-blanco.png') }}" 
+                     class="img-fluid p-2 mb-2" 
+                     alt="LOGO" 
+                     style="max-height: 120px; border-radius: 10px; border: 2px solid rgb(230, 230, 230); ">
+                <h1 class="h3 fw-bold text-secondary mt-3">Crear Cuenta</h1>
+            </div>
+
+            <form action="" method="post" class="needs-validation" novalidate>
                 {{ form.hidden_tag() }}
-                <p>
-                    {{ form.username.label }}<br>
-                    {{ form.username(size=32) }}<br>
+                
+                <div class="mb-3">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="Define tu nombre de usuario") }}
                     {% for error in form.username.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
                     {% endfor %}
-                </p>
-                <p>
-                    {{ form.password.label }}<br>
-                    {{ form.password(size=32) }}<br>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Contraseña") }}
                     {% for error in form.password.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
                     {% endfor %}
-                </p>
-                <p>
-                    {{ form.password2.label }}<br>
-                    {{ form.password2(size=32) }}<br>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password2.label(class="form-label") }}
+                    {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else ""), placeholder="Repite la contraseña") }}
                     {% for error in form.password2.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
                     {% endfor %}
-                </p>
-                <p>
-                    {{ form.role.label }}<br>
-                    {{ form.role }}
-                </p>
-                <p>{{ form.submit(class="btn btn-secondary") }}</p>
+                </div>
+
+                {% if form.role %}
+                <div class="mb-4">
+                    {{ form.role.label(class="form-label d-block mb-2") }}
+                    
+                    {% if form.role.type == 'SelectField' %}
+                        {{ form.role(class="form-select" + (" is-invalid" if form.role.errors else "")) }}
+                    {% else %}
+                        {{ form.role(class="form-control" + (" is-invalid" if form.role.errors else "")) }} 
+                    {% endif %}
+                    
+                    {% for error in form.role.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+
+                <div class="d-grid gap-2 mt-4">
+                    {{ form.submit(class="btn btn-secondary fw-bold p-2 text-uppercase") }}
+                </div>
+
             </form>
+
+            <hr class="my-4">
+            
+            <p class="text-center text-secondary">
+                ¿Ya tienes una cuenta? <a href="{{ url_for('login') }}" class="fw-bold link text-purple">¡Inicia sesión aquí!</a>
+            </p>
         </div>
-    </section>
+    </main>
 {% endblock %}

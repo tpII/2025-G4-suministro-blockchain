@@ -1,52 +1,79 @@
+
 {% extends "base.html" %}
 
 {% block content %}
-{% if response %}
-<div id="map" style="height:250px;"></div>
-<div class="table-responsive overflow-scroll" style="height:300px;width:75vw;">
-    <!-- Hacer algo con la respuesta exitosa -->
-    <table class="table table-sm table-bordered border-secondary">
-        <thead class="table-secondary">
-            <tr>
-                <th>ID</th>
-                <th>Etapa</th>
-                <th>Precio</th>
-                <th>Bodega</th>
-                <th>Uva</th>
-                <th>Año</th>
-                <th>Temperatura</th>
-                <th>Humedad</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Tiempo</th>
-                <th>TX id</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for asset in response %}
-                <tr>
-                    <td>{{ asset.data.ID }}</td>
-                    <td>{{ asset.data.Owner }}</td>
-                    <td>{{ asset.data.Price }}</td>
-                    <td>{{ asset.data.Winery }}</td>
-                    <td>{{ asset.data.Varietal }}</td>
-                    <td>{{ asset.data.Year }}</td>
-                    <td>{{ asset.data.Temperature }}</td>
-                    <td>{{ asset.data.Humidity }}</td>
-                    <td>{{ asset.data.Latitude }}</td>
-                    <td>{{ asset.data.Longitude }}</td>
-                    <td>{{ asset.timestamp }}</td>
-                    <td>{{ asset.txid }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
+<div class="container-fluid px-4">
+    <a href="{{ url_for('assets_historial') }}" 
+   class="btn btn-outline-secondary mb-3 rounded-pill px-4 shadow-sm">
+    ← Volver al listado
+</a>
+    <h2 class="section-title mb-4">Historial de Trazabilidad</h2>
 
+    {% if response %}
+    
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        
+        <div class="card-body bg-light p-0 ">
+            <div class="table-responsive rounded-bottom " style="max-height: 350px;" style="padding: 1rem;">
+                <table class="table table-hover table-striped align-middle mb-0 text-center" style="padding: 1rem;">
+                    <thead class="table-secondary ">
+                        <tr>
+                            <th>ID</th>
+                            <th>Etapa</th>
+                            <th>Precio</th>
+                            <th>Bodega</th>
+                            <th>Uva</th>
+                            <th>Año</th>
+                            <th>Temp.</th>
+                            <th>Humedad</th>
+                            <th>Latitud</th>
+                            <th>Longitud</th>
+                            <th>Tiempo</th>
+                            <th>Tx ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in response %}
+                        <tr>
+                            <td class="fw-semibold">{{ asset.data.ID }}</td>
+                            <td>{{ asset.data.Owner }}</td>
+                            <td>${{ asset.data.Price }}</td>
+                            <td>{{ asset.data.Winery }}</td>
+                            <td>{{ asset.data.Varietal }}</td>
+                            <td>{{ asset.data.Year }}</td>
+                            <td>{{ asset.data.Temperature }} °C</td>
+                            <td>{{ asset.data.Humidity }} %</td>
+                            <td>{{ asset.data.Latitude }}</td>
+                            <td>{{ asset.data.Longitude }}</td>
+                            <td>{{ asset.timestamp }}</td>
+                            <td class="text-muted small">{{ asset.txid }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4" style="padding-top: 2rem;">
+        <div class="card-header bg-purple text-light py-3 ">
+            <h5 class="mb-0 fw-semibold text-uppercase letter-spacing-1">
+                Recorrido del Activo
+            </h5>
+        </div>
+        <div class="card-body bg-light p-0">
+            <div id="map" class="rounded-bottom" style="height: 300px;"></div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-secondary text-center mt-4 shadow-sm rounded-3">
+        No hay historial disponible para este activo.
+    </div>
+    {% endif %}
+</div>
 
 <script>
-   try {
+try {
 
         '{% if coordenadas is defined %}'
             var coordenadas = JSON.parse('{{ coordenadas | tojson | safe }}');
@@ -94,8 +121,5 @@
         // Manejar la excepción
         console.error('Ocurrió una excepción:', error.message);
     }
-
-
 </script>
-
 {% endblock %}

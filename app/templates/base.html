@@ -8,47 +8,43 @@
         {% else %}
         <title>supply-chain</title>
         {% endif %}
-        <!-- JQuery -->
+        
         <script type="text/javascript" src="{{ url_for('static', filename='varios/jquery-3.7.1.min.js') }}"></script>
-        <!-- Socketio -->
         <script type="text/javascript" src="{{ url_for('static', filename='varios/socket.io.min.js') }}"></script>
-        <!-- Bootstrap offline -->
+        
         <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-offline/css/bootstrap.min.css') }}">
         <script src="{{ url_for('static', filename='bootstrap-offline/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- Ionicons -->
+        
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-        <!-- Google fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;700&display=swap" rel="stylesheet">
-        <!-- Hoja de estilos -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='/css/style.css') }}">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <!-- Make sure you put this AFTER Leaflet's CSS -->
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
+        <!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        
     </head>
+    
     <body>
-
-        <!-- Dashboard -->
-        <div class="d-flex">
-            <!-- Sidebar -->
+        <div class="d-flex" id="wrapper">
+            
             {% if not current_user.is_anonymous %}
-                {% include 'base_partials/sidebar.html' %}    
+            <div id="sidebar-container" class="bg-secondary"> 
+                {% include 'base_partials/sidebar.html' %}    
+            </div>
             {% endif %}
 
-            <!-- Contenido a la derecha-->
-            <div class="w-100"> 
-                <!-- Navbar -->
+            <div class="content-wrapper"> 
+                
                 {% if not current_user.is_anonymous %}
                     {% include 'base_partials/navbar.html' %}
                 {% endif %}
 
-                <!-- Flash messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -60,33 +56,14 @@
                     </div>
                     {% endfor %}
                 {% endif %}
+                {% endwith %}
 
-                <!-- Contenido -->
-                {% block content %}{% endblock %}
-
-
-            {% endwith %}
+                <div class="content-body">
+                    {% block content %}{% endblock %}
+                </div>
+                
             </div>
         </div>
         
-     <!-- Scripts -->
     </body>
-    <style>
-        .custom-alert-container {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            z-index: 1000; /* Ajusta el valor del z-index según sea necesario */
-        }
-        .success {
-        background-color: #4CAF50;  /* Verde para éxito */
-        color: #ffff;
-        }
-
-        .error {
-            background-color: #f44336;  /* Rojo para error */
-            color: #ffff;
-        }
-    </style>
-
-</html>
+    </html>
