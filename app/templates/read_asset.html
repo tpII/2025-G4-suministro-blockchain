@@ -85,13 +85,15 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <h6 class="text-primary fw-bold">Acciones</h6>
+                    <h6 class="text-primary fw-bold">Acciones disponibles</h6>
                     <div class="d-grid gap-2 mb-3">
-                        {% if current_user.role != "Cliente" %}
+                        {% if current_user.role != "Cliente" and respuesta_api.Owner == current_user.role %}
                         <a href="{{ url_for('update_asset', asset_id=respuesta_api.ID) }}" class="btn btn-primary">Editar</a>
                         {% endif %}
                         <a href="{{ url_for('asset_history', asset_id=respuesta_api.ID) }}" class="btn btn-primary">Historial</a>
+                        {% if respuesta_api.Owner == current_user.role %}
                         <a href="{{ url_for('transfer_asset', asset_id=respuesta_api.ID) }}" class="btn btn-primary">Transferir</a>
+                        {% endif %}
                     </div>
                     
                     <h6 class="text-primary fw-bold mt-3">Ubicación</h6>

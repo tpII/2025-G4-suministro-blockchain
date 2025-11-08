@@ -198,6 +198,26 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
  cd ..
  ./network.sh deployCC -ccn basic -ccp ../chaincode-typescript/ -ccl typescript
 ```
+---
+  <p>
+    <strong>Nota:</strong> Verificar que el chaincode se haya desplegado en las 3 organizaciones. Si ese no es el caso, seguir las siguientes instrucciones.
+
+    1. Comprobar que no hay contratos desplegados en el nodo con el comando peer lifecycle chaincode queryinstalled
+   
+    2. Si no hay contratos, se deben poner las variables de entorno para invocar la blockchain desde la organización correspondiente y crear el paquete básico de la blockchain llamado basic.tar.gz: peer lifecycle chaincode package basic.tar.gz --path ../chaincode-typescript/ --lang node --label basic_1.0
+   
+    3. Instalar el paquete basic.tar.gz: peer lifecycle chaincode install basic.tar.gz
+   
+    4. . Confirmar la instalación con peer lifecycle chaincode queryinstalled
+   
+    5. Exportar el PACKEDGE ID de acuerdo al valor especificado en el comando anterior. Por ejemplo, si la salida fue 
+   <code>Get installed chaincodes on peer:
+    Package ID: basic_1:5443b5b557efd3faece8723883d28d6f7026c0bf12245de109b89c5c4fe64887, Label: basic_1, </code> <pre>entonces se debe hacer</pre> <pre><code>export CC_PACKAGE_ID=basic_1:5443b5b557efd3faece8723883d28d6f7026c0bf12245de109b89c5c4fe64887</pre></code>
+  
+    6. Aprobar la definición del paquete básico: 
+   <pre><code>peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1</code></pre> 
+    
+
 
 <p>Ahora se puede probar el chaincode, se pueden setear las variables para actuar como organización 1:</p>
 
@@ -235,6 +255,29 @@ export CORE_PEER_ADDRESS=localhost:7051
     <pre><code>docker start $(docker ps -a -q)</code></pre>
     <p>Tener en cuenta que levanta <strong>TODOS</strong> los contenedores Docker.</p> 
   </p>
+
+  <p>
+ <strong>Anexo? - Variables de entorno de Org2:</strong> Para realizar comandos de la blockchain desde la organización 2, se deben exportar las siguientes variables de entorno: 
+ </p>
+ 
+  ```sh 
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org2MSP"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+  export CORE_PEER_ADDRESS=localhost:9051
+  ```
+  <p>
+ <strong>Anexo? - Variables de entorno de Org3:</strong> Para realizar comandos de la blockchain desde la organización 3, se deben exportar las siguientes variables de entorno: 
+ </p>
+ 
+  ```sh 
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org3MSP"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
+  export CORE_PEER_ADDRESS=localhost:11051
+  ```
 <h2>API REST</h2>
 
 <p>Finalizadas las pruebas del chaincode se puede levantar el servidor API REST y el servidor REDIS (que se encarga de la cola de tareas). Ir a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>
@@ -275,7 +318,7 @@ export CORE_PEER_ADDRESS=localhost:7051
   <p>En el directorio raíz, crear el entorno virtual:</p>
 
   ```sh
-   python -m venv venv
+   python3 -m venv venv
   ```
 
   <p>Activar el entorno virtual:</p>

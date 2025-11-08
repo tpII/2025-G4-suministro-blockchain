@@ -40,7 +40,8 @@ PubSubClient client(espClient);
 
 /* RFID */
 // Pines del lector RFID
-#define SS_PIN  15  // ESP8266 pin GPIO15 (D8) - ESP32 pin GPIO5 
+#define SS_PIN  2 //ESP8266 pin GPIO2 (D4)
+//#define SS_PIN  15  // ESP8266 pin GPIO15 (D8) - ESP32 pin GPIO5 
 #define RST_PIN 0 // ESP8266 pin GPIO0 (D3) - ESP32 pin GPIO27 
 // Pin para manejar LED escaneo RFID
 #define RFID_LED_PIN 14 // ESP32 pin GPIO14
@@ -66,6 +67,12 @@ static bool DHT_REQUEST = false;
 // Tiempos máximos
 #define HEARTBEAT_WAIT 3000 // Esperar 3000 ms antes de mandar un "látido"
 static unsigned long last_heartbeat_time = 0;
+
+//El lector deja de leer si pasa mucho tiempo --> se debe reiniciar
+unsigned long tiempoSinRespuesta = 0;
+unsigned long ultimoIntento = 0;
+const unsigned long TIEMPO_MAX_SIN_RESPUESTA = 8000; // si pasa 8s sin leer, reiniciamos
+
 
 void setup() {
 
@@ -167,6 +174,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       RFID_REQUEST = true;
       // Suscripcion al tema rfid para enviar datos
       client.subscribe("rfid"); 
+      ultimoIntento = millis(); //guarda el momento en que se hizo el request
     } else if (message == "OFF") {
       RFID_REQUEST = false;
     }
@@ -227,6 +235,12 @@ void scan_rfid(){
         uid += String(rfid.uid.uidByte[i], HEX);
       }
 
+      /* Terminar comunicación con RFID */ 
+       // Halt PICC
+       rfid.PICC_HaltA();
+      // Stop encryption on PCD
+       rfid.PCD_StopCrypto1();
+
       // Publicar el UID del RFID en el topic "rfid"
       client.publish("rfid", uid.c_str());
       Serial.println("UID RFID: " + uid);
@@ -235,6 +249,15 @@ void scan_rfid(){
       client.unsubscribe("rfid");
 
       RFID_REQUEST = false;
+    }else{
+      // si se cree que el lector se ha "apagado", se manda señal de reinicio
+      tiempoSinRespuesta = millis() - ultimoIntento; //tiempo actual - tiempo en que se hizo el request 
+      if(tiempoSinRespuesta > TIEMPO_MAX_SIN_RESPUESTA){
+        Serial.println("No se detectan tarjetas hace mucho. Reiniciando RC522...");
+        reiniciarRC522();
+        ultimoIntento = millis(); //se guarda el momento en que se hizo el reset 
+      }
+        return;
     }  
 }
 
@@ -269,4 +292,11 @@ void send_dht(){
   // Desuscribirse de los topics "temp" y "hum"
   client.unsubscribe("temp");
   client.unsubscribe("hum");
+}
+
+void reiniciarRC522() {
+  rfid.PCD_Reset();
+  delay(50);
+  rfid.PCD_Init();
+  Serial.println("RC522 reinicializado correctamente.");
 }

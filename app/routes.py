@@ -20,8 +20,7 @@ import requests
 # Obtener organización segun el rol
 def get_org():
     if current_user.is_authenticated:
-        if current_user.role == "Productor":
-            
+        if current_user.role == "Productor":            
             return "Org1MSP"
         elif current_user.role == "Transportador":
             return "Org2MSP"
@@ -47,18 +46,24 @@ def get_api_key():
 @app.route('/index')
 @login_required
 def index():
+    print("ESTAMOS2")
     return render_template("index.html", title='Home Page')
 
 # Iniciar sesión
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    
+    print("ESTAMOS")
     # Por si un usuario autenticado quiere ir a /login
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    
     form = LoginForm()
     # Si el formulario es valido
+    
     if form.validate_on_submit():
+        
         if 'client_login' in request.form:  # Verificar si el botón de acceso como invitado fue presionado
             client_user = User.query.filter_by(username='cliente').first()
             print(client_user)
@@ -136,7 +141,10 @@ def handle_job_created(response, headers):
 
     if "transactionError" in respuesta_job:
         flash(f"Error en la solicitud. {respuesta_job['transactionError']}", 'error')
+    elif "ya existe" in respuesta_job:
+        flash(f"Error en la solicitud. El asset ya está registrado en la blockchain", 'error')
     else:
+        print("======RESPUESTA========\n",respuesta_job)
         flash("La transacción se envió de forma exitosa", 'success')
 
 def handle_error(response):
@@ -148,6 +156,7 @@ def handle_error(response):
         flash("Error: Recurso no encontrado.", 'error')
     else:
         flash(f"Error en la solicitud. Código: {response.status_code}", 'error')
+
 
 @app.route("/read_asset", methods=['GET', 'POST'])
 def read_asset():
@@ -170,7 +179,6 @@ def read_asset():
                     respuesta_api = response.json()
                     flash(f"Respuesta de la API: {respuesta_api}", 'success')
                     if respuesta_api['Owner']  == "Org1MSP":
-                        print("Hola")
                         respuesta_api['Owner'] = "Productor"
                     elif respuesta_api['Owner'] == "Org2MSP":
                         respuesta_api['Owner'] = "Transportador"
@@ -187,6 +195,7 @@ def read_asset():
             flash(f"Error en la solicitud: {e}", 'error')
     
     return render_template('read_asset.html', form=form)
+
 
 @app.route("/new_asset", methods=['GET', 'POST'])
 def new_asset():
@@ -223,6 +232,9 @@ def new_asset():
         }
 
         try:
+            #chequear aca
+            #configuracion
+            #api con datos que faltan
             response = requests.post(url, json=body, headers=headers)
 
             if response is None:
@@ -233,6 +245,8 @@ def new_asset():
                 handle_success(response)
             elif response.status_code == 202:
                 handle_job_created(response, headers)
+            elif response.status_code == 409:
+                flash(f"Error en la solicitud. El asset ya está registrado en la blockchain", 'error')
             else:
                 handle_error(response)
 
@@ -248,6 +262,8 @@ def update_asset(asset_id):
 
     if request.method == 'POST' and form.validate_on_submit():
         # Actualiza los campos del activo con los valores del formulario
+        
+        
         url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
         headers = {
             "X-api-key": get_api_key(),
