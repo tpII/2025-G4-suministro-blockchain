@@ -1,163 +1,290 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <!-- <h1>Hola, {{ current_user.username }}!</h1> -->
-    <!-- Primer texto -->
-    <div class="content">
-        <section class="py-3">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <h1 class="fw-bold text-secondary">Bienvenido {{ current_user.username.capitalize() }}</h1>
-                        <h3 class="fw-bold text-secondary">Rol: {{ current_user.role }}</h3>
-                        <p class="led text-body-secondary text-secondary">Revisa la última información</p>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Sección de números -->
-        <!--
-        <section class="bg-mix">
-            <div class="container">
-                <div class="card rounded-0">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-lg-3 d-flex stat my-3">
-                                <div class="d-flex flex-column align-items-center mx-auto">
-                                    <h6 class="text-body-secondary">Proveedores registrados</h6>        
-                                    <h3 class="fw-bold">1234</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 d-flex stat my-3">
-                                <div class="d-flex flex-column align-items-center mx-auto">
-                                    <h6 class="text-body-secondary">Productores registrados</h6>        
-                                    <h3 class="fw-bold">1234</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 d-flex stat my-3">
-                                <div class="d-flex flex-column align-items-center mx-auto">
-                                    <h6 class="text-body-secondary">Distribuidores registrados</h6>        
-                                    <h3 class="fw-bold">1234</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 d-flex stat my-3">
-                                <div class="d-flex flex-column align-items-center mx-auto">
-                                    <h6 class="text-body-secondary">Tiendas registradas</h6>        
-                                    <h3 class="fw-bold">1234</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        -->
+<main class="container py-4">
 
-        <!-- Sección a la derecha -->
-    <!--
+  <!-- Encabezado -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold text-secondary">Bienvenido, {{ current_user.username.capitalize() }}</h1>
+    <h5 class="text-muted">Rol: {{ current_user.role }}</h5>
+  </div>
 
-        <section class="bg-gray">
-            <div class="container">
-                <div class="row">
-                    ChartJS
-                    <div class="col-lg-7 my-3">
-                        <div class="card rounded-0">
-                            <div class="card-header bg-light">
-                                <h6 class="fw-bold mb-0">Cantidad de bloques creados</h6>
-                            </div>
-                            <div class="card-body">
-                                    <canvas id="myChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                     Transacciones recientes
-                    <div class="col-lg-5 my-3">
-                        <div class="card rounded-0">
-                            <div class="card-header bg-light">
-                                <h6 class="fw-bold mb-0">Transacciones recientes</h6>
-                            </div>
-                            <div class="card-body pt-2">
-                                <div class="d-flex border-bottom py-2">
-                                    <div class="d-flex me-3">
-                                        <h2 class="align-self-center mb-0"><ion-icon name="pricetag"></ion-icon></h2>
-                                    </div>
-                                    <div class="d-flex align-self-center">
-                                        <div>
-                                            <h6 class="d-inline-block mb-0">1681ffc7</h6>
-                                            <small class="d-block text-body-secondary">16:42 12/10/2023</small>
-                                        </div>
-                                        <span class="badge align-self-center text-bg-success ms-2">PRODUCER</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex border-bottom py-2">
-                                    <div class="d-flex me-3">
-                                        <h2 class="align-self-center mb-0"><ion-icon name="pricetag"></ion-icon></h2>
-                                    </div>
-                                    <div class="d-flex align-self-center">
-                                        <div>
-                                            <h6 class="d-inline-block mb-0">8342c467</h6>
-                                            <small class="d-block text-body-secondary">15:42 12/10/2023</small>
-                                        </div>
-                                        <span class="badge align-self-center text-bg-primary ms-2">SHIPPER</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex border-bottom py-2 mb-3">
-                                    <div class="d-flex me-3">
-                                        <h2 class="align-self-center mb-0"><ion-icon name="pricetag"></ion-icon></h2>
-                                    </div>
-                                    <div class="d-flex align-self-center">
-                                        <div>
-                                            <h6 class="d-inline-block mb-0">a09bee29</h6>
-                                            <small class="d-block text-body-secondary">15:37 12/10/2023</small>
-                                        </div>
-                                        
-                                        <span class="badge align-self-center text-bg-primary ms-2">SHIPPER</span>
-                                        
-                                    </div>
-                                </div>
-                                <buton class="btn btn-primary w-100">Ver todas</buton>
-                            </div>
-                        </div>
-                    </div>
+  {% if current_user.role == 'Productor' %}
+    <!-- Estadísticas generales Productor -->
+    <section class="row g-4 mb-4 text-center">
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos Totales</h6>
+            <h2 class="fw-bold text-primary">{{ stats.total_assets }}</h2>
+            <small class="text-muted">Registrados en la blockchain</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Bodegas Registradas</h6>
+            <h2 class="fw-bold text-primary">{{ stats.total_wineries }}</h2>
+            <small class="text-muted">Productores distintos</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos en Producción</h6>
+            <h2 class="fw-bold text-primary">{{ stats.producer_in_production }}</h2>
+            <small class="text-muted">Propiedad del productor</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos en Transporte</h6>
+            <h2 class="fw-bold text-primary">{{ stats.transporter_in_transit }}</h2>
+            <small class="text-muted">Propiedad del transportista</small>
+          </div>
+        </div>
+      </div>
+    </section>
 
-                </div>
-            </div>
-        </section>
+  {% elif current_user.role == 'Transportador' %}
+    <!-- Estadísticas generales Transportador -->
+    <section class="row g-4 mb-4 text-center">
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos pendientes</h6>
+            <h2 class="fw-bold text-primary">{{ stats.producer_in_production}}</h2>
+            <small class="text-muted">Activos por recoger</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos en Transporte</h6>
+            <h2 class="fw-bold text-primary">{{ stats.transporter_in_transit }}</h2>
+            <small class="text-muted">Propiedad del transportista</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Activos Entregados</h6>
+            <h2 class="fw-bold text-primary">{{ stats.client_received}}</h2>
+            <small class="text-muted">Propiedad del cliente</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="text-secondary">Promedio de Temperatura</h6>
+            <h2 class="fw-bold text-primary">
+              {{ stats.transporter_temp_avg if stats.transporter_temp_avg is not none else 'N/A' }}°C
+            </h2>
+            <small class="text-muted">Temperatura de los activos</small>
+          </div>
+        </div>
+      </div>
+    </section>
+ 
+
+{% elif current_user.role == 'Cliente' %}
+  <!-- Estadísticas generales Cliente -->
+  <section class="row g-4 mb-4 text-center">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-secondary">Activos Recibidos</h6>
+          <h2 class="fw-bold text-primary">{{ stats.client_received }}</h2>
+          <small class="text-muted">Activos ya entregados</small>
+        </div>
+      </div>
     </div>
-     Chart.js 
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-secondary">Activos en Transporte</h6>
+          <h2 class="fw-bold text-primary">{{ stats.transporter_in_transit }}</h2>
+          <small class="text-muted">Activos en camino</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-secondary">Precio Promedio</h6>
+          <h2 class="fw-bold text-primary">
+            {{ stats.client_price_avg if stats.client_price_avg is not none else 'N/A' }}$
+          </h2>
+          <small class="text-muted">Promedio de los activos recibidos</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="text-secondary">Variedades Recibidas</h6>
+          <h2 class="fw-bold text-primary">{{ stats.client_varieties }}</h2>
+          <small class="text-muted">Tipos de activos entregados</small>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('myChart');
-        
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-            labels: ['Febrero 2023', 'Marzo 2023', 'Abril 2023', 'Mayo 2023', 'Junio 2023', 'Julio 2023'],
-            datasets: [{
-                label: 'Nuevos bloques',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: [
-                '#F5DD00',
-                '#F5DD00',
-                '#F5DD00',
-                '#F5DD00',
-                '#F5DD00',
-                '#F5DD00',
-                ],
-                maxBarThickness: 50,
-                borderWidth: 1
-            }]
-            },
-            options: {
-            scales: {
-                y: {
-                beginAtZero: true
-                }
-            }
-            }
-        });
-        </script>
-        !-->
+
+   <!-- Gráfico de activos por bodega -->
+  <section class="mb-5">
+    <h4 class="fw-bold text-secondary mb-3">Distribución por bodega</h4>
+    <canvas id="chartBodegas" height="100"></canvas>
+  </section>
+
+
+<section id="recent-activity" class="mb-5">
+    <h2 class="h4 mb-3"><i class="fas fa-history me-2"></i>Actividad Reciente</h2>
+    {% if recent_activity_detailed %}
+        <ul class="list-group shadow-sm">
+            {% for entry in recent_activity_detailed %}
+                <li class="list-group-item d-flex flex-column">
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">
+                            {% if entry.operacion == "creacion" %}
+                                <i class="fa-solid fa-plus-circle"></i>
+                            {% elif entry.operacion == "transferencia" %}
+                                <i class="fa-solid fa-right-left"></i>
+                            {% else %}
+                                <i class="fa-solid fa-pencil "></i>
+                            {% endif %}
+                        </span>
+
+                        <span>
+                            {% for change in entry.changes %}
+                                {{ change }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+
+                        <small class="text-muted ms-auto ps-3">
+                            <i class="far fa-clock me-1"></i> {{ entry.timestamp_human }}
+                        </small>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted fst-italic">Aún no se ha registrado actividad reciente en la red.</p>
+    {% endif %}
+</section>
+
+
+  <!-- Mapa de activos -->
+  <section class="mb-5">
+    <h4 class="fw-bold text-secondary mb-3">Ubicación de activos</h4>
+    <div id="map" style="height:400px;" class="rounded shadow-sm"></div>
+  </section>
+
+</main>
+
+<!-- ====== Scripts ====== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+  // === Gráfico de activos por bodega ===
+  const bodegas = {};
+  {% for asset in assets %}
+    bodegas["{{ asset.Winery }}"] = (bodegas["{{ asset.Winery }}"] || 0) + 1;
+  {% endfor %}
+  const ctx = document.getElementById('chartBodegas').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(bodegas),
+      datasets: [{
+        label: 'Cantidad de activos',
+        data: Object.values(bodegas),
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgb(54, 162, 235)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // === Mapa de activos ===
+  var map = L.map('map').setView([-34.6037, -58.3816], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  console.log(map);
+  // Iconos por propietario
+  var icons = {
+    'Org1MSP': L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+    }),
+    'Org2MSP': L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+    }),
+    'Cliente': L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+    })
+};
+
+
+  // Crear capas para cada propietario
+  var layers = {
+    'Org1MSP': L.layerGroup().addTo(map),
+    'Org2MSP': L.layerGroup().addTo(map),
+    'Org3MSP': L.layerGroup().addTo(map)
+  };
+
+  // Añadir marcadores a las capas correspondientes
+  {% for asset in assets %}
+  {% if asset.Latitude is not none and asset.Longitude is not none %}
+    var owner = '{{ asset.Owner }}';
+    var iconToUse = icons[owner] || new L.Icon.Default(); // fallback al default
+    var marker = L.marker([{{ asset.Latitude }}, {{ asset.Longitude }}], {icon: iconToUse})
+      .bindPopup(`
+        <b>{{ asset.Winery }}</b><br>
+        {{ asset.Varietal }} - {{ asset.Year }}<br>
+        Propietario: {{ asset.Owner }}<br>
+        Precio: ${{ asset.Price }}<br>
+        Temperatura: {{ asset.Temperature }}°C<br>
+        Humedad: {{ asset.Humidity }}%
+      `);
+    var owner = '{{ asset.Owner }}';  // debe ser Org1MSP, Org2MSP o Org3MSP
+    if(layers[owner]) {
+        layers[owner].addLayer(marker);
+    }
+  {% endif %}
+{% endfor %}
+
+
+  // Controles de filtrado por propietario
+  L.control.layers(null, {
+    "Productor": layers['Org1MSP'],
+    "Transportador": layers['Org2MSP'],
+    "Cliente": layers['Org3MSP']
+  }, {collapsed: false}).addTo(map);
+
+
+</script>
+
+
+
+
 {% endblock %}

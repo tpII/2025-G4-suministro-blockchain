@@ -27,14 +27,14 @@
             {{ form.owner() }} 
             
             <h5 class="section-title text-purple">Detalles del Activo</h5>
-            
+
             <div class="row mb-3 g-3">
                 
                 {% for field_name, label, size in [('precio', 'Precio', 32), ('bodega', 'Bodega', 32), ('uva', 'Uva', 32), ('cosecha', 'Cosecha', 32)] %}
                     {% set field = form[field_name] %}
                     <div class="col-md-3">
                         {{ field.label(class="form-label") }}
-                        {{ field(class="form-control" + (" is-invalid" if field.errors else ""), size=size, placeholder=label) }}
+                        {{ field(class="form-control" + (" is-invalid" if field.errors else ""), size=size, placeholder=label, readonly=(rol_usuario=='Transportador')) }}
                         {% for error in field.errors %}
                             <div class="invalid-feedback">
                                 {{ error }}

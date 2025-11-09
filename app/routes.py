@@ -16,6 +16,7 @@ from werkzeug.urls import url_parse
 
 # Manejo de peticiones
 import requests
+import time
 
 # Obtener organización segun el rol
 def get_org():
@@ -40,59 +41,190 @@ def get_api_key():
     else:
        return str(os.environ.get('API_KEY_CLIENTE'))
         
-# Decoradores (modifican la funcion que tienen a continuación)
-# Asocian URLs con funciones
+
 # Indice
+from datetime import datetime
+import json
+
+
 @app.route('/index')
-@login_required
+@login_required 
 def index():
-    print("ESTAMOS2")
-    return render_template("index.html", title='Home Page')
+    headers = {"X-api-key": get_api_key()}
+    API_BASE = os.environ.get('API_ADDRESS')
+    
+    assets = []
+    all_history_events = []
+    
+    # --- PASO 1: Obtener todos los assets ---
+    try:
+        url_assets = f"{API_BASE}/api/assets"
+        response_assets = requests.get(url_assets, headers=headers, timeout=10)
+        response_assets.raise_for_status()
+        assets_raw = response_assets.json()
+        
+        asset_ids = []
+        for asset in assets_raw:
+            asset_ids.append(asset.get('ID'))
+            # Formateo de Owner
+            if asset.get('Owner') == "Org1MSP": asset['Owner_Name'] = "Productor"
+            elif asset.get('Owner') == "Org2MSP": asset['Owner_Name'] = "Transportador"
+            elif asset.get('Owner') == "Org3MSP": asset['Owner_Name'] = "Cliente"
+            assets.append(asset)
+
+    except requests.exceptions.RequestException as e:
+        flash(f"Error al cargar la lista de activos: {e}", "error")
+        return render_template("index.html", assets=[], recent_activity=[])
+
+    # --- PASO 2: Obtener historial de cada asset ---
+    for asset_id in asset_ids:
+        try:
+            url_history = f"{API_BASE}/api/assets/history/{asset_id}"
+            response_history = requests.get(url_history, headers=headers, timeout=10)
+            response_history.raise_for_status()
+            
+            history_data = response_history.json()
+            for event in history_data:
+                event['asset_id'] = asset_id
+                all_history_events.append(event)
+
+        except requests.exceptions.RequestException as e:
+            print(f"Advertencia: No se pudo obtener historial para ID {asset_id}. Error: {e}")
+
+    # --- Función para convertir timestamp ---
+    def get_timestamp_value(entry):
+        seconds = entry.get('timestamp', {}).get('seconds', 0)
+        nanos = entry.get('timestamp', {}).get('nanos', 0)
+        return seconds + nanos / 1e9
+
+    # --- PASO 3: Detectar cambios reales ---
+    last_state_per_asset = {}
+    all_changes = []
+
+    # Orden ascendente para detectar creación primero
+    all_history_events.sort(key=get_timestamp_value)
+
+    for entry in all_history_events:
+        asset_id = entry.get('asset_id')
+        data_dict = json.loads(entry['data'])
+        timestamp = datetime.fromtimestamp(get_timestamp_value(entry))
+
+        # Mapear Owner
+        owner = data_dict.get('Owner', 'N/A')
+        if owner == "Org1MSP": owner_name = "Productor"
+        elif owner == "Org2MSP": owner_name = "Transportador"
+        elif owner == "Org3MSP": owner_name = "Cliente"
+        else: owner_name = "Desconocido"
+
+        changes = []
+
+        if asset_id not in last_state_per_asset:
+            changes.append(f"Se creó el activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) bajo la propiedad de {owner_name}.")
+            operacion = "creacion"
+        else:
+            previous = last_state_per_asset[asset_id]
+            
+            # Detectar cambio de propietario
+            if previous.get('Owner') != data_dict.get('Owner'):
+                prev_owner = previous.get('Owner')
+                if prev_owner == "Org1MSP": prev_owner_name = "Productor"
+                elif prev_owner == "Org2MSP": prev_owner_name = "Transportador"
+                elif prev_owner == "Org3MSP": prev_owner_name = "Cliente"
+                else: prev_owner_name = "Desconocido"
+                changes.append(
+                    f"El activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) fue transferido de {prev_owner_name} a {owner_name}."
+                )
+                operacion = "transferencia"
+            
+            # Detectar cambios en otros campos
+            modificado = False
+            for key, value in data_dict.items():
+                if key != 'Owner' and previous.get(key) != value:
+                    modificado = True
+
+            if modificado:
+                changes.append(
+                    f"El activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) fue modificado."
+                )
+                operacion = "modificacion"
+
+        # Guardar el estado actual como último conocido
+        last_state_per_asset[asset_id] = data_dict
+
+        all_changes.append({
+            'id': asset_id,
+            'owner': owner_name,
+            'timestamp_human': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'changes': changes,
+            'data': data_dict,
+            'operacion': operacion
+        })
+
+    # Tomar solo los últimos 5 cambios
+    recent_activity_detailed = all_changes[-5:][::-1]
+
+    # --- PASO 4: Estadísticas ---
+    producer_assets = [a for a in assets if a['Owner'] == 'Org1MSP']
+    transporter_assets = [a for a in assets if a['Owner'] == 'Org2MSP']
+    client_assets = [a for a in assets if a['Owner'] == 'Org3MSP']
+
+    stats = {
+        'total_assets': len(assets),
+        'total_wineries': len(set(a['Winery'] for a in assets)),
+        'producer_in_production': len(producer_assets),
+        'transporter_in_transit': len(transporter_assets),
+        'transporter_temp_avg': round(
+            sum(float(a.get('Temperature',0)) for a in transporter_assets) / len(transporter_assets), 1
+        ) if transporter_assets else None,
+        'client_received': len(client_assets),
+        'client_price_avg': round(
+            sum(float(a.get('Price',0)) for a in client_assets) / len(client_assets), 1
+        ) if client_assets else None,
+        'client_varieties': len(set(a['Varietal'] for a in client_assets))
+    }
+
+    return render_template(
+        "index.html",
+        assets=assets,
+        recent_activity_detailed=recent_activity_detailed,
+        stats=stats
+    )
 
 # Iniciar sesión
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    
-    print("ESTAMOS")
-    # Por si un usuario autenticado quiere ir a /login
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    
-    form = LoginForm()
-    # Si el formulario es valido
-    
-    if form.validate_on_submit():
-        
-        if 'client_login' in request.form:  # Verificar si el botón de acceso como invitado fue presionado
-            client_user = User.query.filter_by(username='cliente').first()
-            print(client_user)
-            if not client_user:
-                client_user = User(username='cliente')  
-                # Se genera una contraseña
-                client_user.set_password('cliente')
-                # Se agrega el rol
-                client_user.role = "Cliente"
-                # Se agrega a la DB
-                db.session.add(client_user)
-                db.session.commit()
 
-            login_user(client_user)
-            print(client_user)
-            #next_page = request.args.get('next', url_for('index'))
-            return redirect(url_for('index'))
-        # Busca si existe el username
+    form = LoginForm()
+
+    # Si se presiona el botón de cliente, salteamos validación
+    if request.method == 'POST' and 'client_login' in request.form:
+        client_user = User.query.filter_by(username='cliente').first()
+        if not client_user:
+            client_user = User(username='cliente')
+            client_user.set_password('cliente')
+            client_user.role = "Cliente"
+            db.session.add(client_user)
+            db.session.commit()
+        
+        login_user(client_user)
+        return redirect(url_for('index'))
+
+    # Solo validamos si es el botón normal de login
+    if form.validate_on_submit() and 'submit' in request.form:
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Usuario o contraseña invalidos', 'error')
+            flash('Usuario o contraseña inválidos', 'error')
             return redirect(url_for('login'))
-        # Si existe y password correcto
+        
         login_user(user, remember=form.remember_me.data)
-        # Redirige a una next_page (si la hay)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
+
     return render_template('login.html', title='Login', form=form)
 
 # Cerrar sesión
@@ -132,20 +264,15 @@ def handle_success(response):
 
 def handle_job_created(response, headers):
     job_id = response.json()['jobId']
-    headers["Content-Type"] = 'text/html'
-    url = f"{os.environ.get('API_ADDRESS')}/api/jobs/{job_id}"
-    response = requests.get(url, headers=headers)
-    print(response.text)
-    respuesta_job = response.json()
-    print(respuesta_job)
-
-    if "transactionError" in respuesta_job:
-        flash(f"Error en la solicitud. {respuesta_job['transactionError']}", 'error')
-    elif "ya existe" in respuesta_job:
-        flash(f"Error en la solicitud. El asset ya está registrado en la blockchain", 'error')
-    else:
-        print("======RESPUESTA========\n",respuesta_job)
-        flash("La transacción se envió de forma exitosa", 'success')
+    url_job = f"{os.environ.get('API_ADDRESS')}/api/jobs/{job_id}"
+    for _ in range(10):  # 10 intentos
+        job_resp = requests.get(url_job, headers=headers).json()
+        if 'transactionError' in job_resp:
+            flash(f"Error en la solicitud: {job_resp['transactionError']}", 'error')
+            break
+        if job_resp.get('status') == 'completed':
+            break
+        time.sleep(0.2)  # 0.5 segundos entre intentos
 
 def handle_error(response):
     if response.status_code == 401:
@@ -245,6 +372,7 @@ def new_asset():
                 handle_success(response)
             elif response.status_code == 202:
                 handle_job_created(response, headers)
+                return redirect(url_for('assets'))
             elif response.status_code == 409:
                 flash(f"Error en la solicitud. El asset ya está registrado en la blockchain", 'error')
             else:
@@ -260,15 +388,13 @@ def new_asset():
 def update_asset(asset_id):
     form = UpdateAssetForm()
 
+    
     if request.method == 'POST' and form.validate_on_submit():
         # Actualiza los campos del activo con los valores del formulario
-        
-        
         url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
         headers = {
             "X-api-key": get_api_key(),
         }
-
         precio = form.precio.data
         bodega = form.bodega.data
         uva = form.uva.data
@@ -280,18 +406,18 @@ def update_asset(asset_id):
         owner = form.owner.data
 
         body = {
-            "Role": "admin",
-            "ID": asset_id,
-            "Price": precio,
-            "Winery": bodega,
-            "Varietal": uva,
-            "Year": cosecha,
-            "Temperature": temperatura,
-            "Humidity": humedad,
-            "Latitude": latitud,
-            "Longitude": longitud,
-            "Owner": owner
-        }
+                "Role": "admin",
+                "ID": asset_id,
+                "Price": precio,
+                "Winery": bodega,
+                "Varietal": uva,
+                "Year": cosecha,
+                "Temperature": temperatura,
+                "Humidity": humedad,
+                "Latitude": latitud,
+                "Longitude": longitud,
+                "Owner": owner
+            }
 
         try:
             response = requests.put(url, json=body, headers=headers)
@@ -301,9 +427,10 @@ def update_asset(asset_id):
             
             if response.status_code == 200:
                 handle_success(response)
+                return redirect(url_for('assets'))
             elif response.status_code == 202:
                 handle_job_created(response, headers)
-                return redirect(url_for('index'))
+                return redirect(url_for('assets'))
             else:
                 handle_error(response)
 
@@ -341,12 +468,13 @@ def update_asset(asset_id):
         flash(f"Error en la solicitud: {e}", 'error')
         return redirect(url_for('index'))
 
-    return render_template('update_asset.html', form=form, asset_id=asset_id, coordenadas=coordenadas)
+    return render_template('update_asset.html', form=form, asset_id=asset_id, coordenadas=coordenadas, rol_usuario=current_user.role)
 
 @app.route("/transfer_asset/<string:asset_id>", methods=['GET', 'POST'])
 def transfer_asset(asset_id):
 
     form = TransferAssetForm()
+    next_page = request.args.get('next', 'index')  
 
     if get_org() == "Org1MSP":
         form.owner.choices = [('Org2MSP', 'Transportador')]
@@ -380,9 +508,10 @@ def transfer_asset(asset_id):
             
             if response.status_code == 200:
                 handle_success(response)
+                return redirect(url_for(request.args.get('next', 'assets')))
             elif response.status_code == 202:
                 handle_job_created(response, headers)
-                return redirect(url_for('index'))
+                return redirect(url_for(request.args.get('next', 'assets')))
             else:
                 handle_error(response)
 
@@ -434,6 +563,8 @@ def asset_history(asset_id):
         print(f"Error en la solicitud: {e}")
 
     return render_template("asset_history.html", response=response)
+
+
 @app.route('/assets')
 def assets():
     url = f"{os.environ.get('API_ADDRESS')}/api/assets"

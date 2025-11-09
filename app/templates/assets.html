@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <div class="container-fluid px-4">
     
     <h2 class="section-title mb-4">
@@ -41,15 +44,15 @@
                             <td>{{ asset.Longitude }}</td>
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ url_for('update_asset', asset_id=asset.ID) }}" 
+                                    <a href="{{ url_for('update_asset', asset_id=asset.ID, next='assets') }}" 
                                        class="btn btn-secondary  btn-sm rounded-pill px-3 shadow-sm"><i class="fa-solid fa-pen-to-square"></i>
                                         
                                     </a>
-                                    <a href="{{ url_for('transfer_asset', asset_id=asset.ID) }}" 
+                                    <a href="{{ url_for('transfer_asset', asset_id=asset.ID, next='assets') }}" 
                                        class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm">
-                                        <i class="fa-solid fa-rotate"></i>
+                                        <i class="fa-solid fa-right-left"></i>
                                     </a>
-                                    <a href="{{ url_for('asset_history', asset_id=asset.ID) }}" 
+                                    <a href="{{ url_for('asset_history', asset_id=asset.ID, next='assets') }}" 
                                        class="btn btn-secondary  btn-sm rounded-pill px-3 shadow-sm">
                                         <i class="fa-solid fa-file"></i>
                                     </a>
