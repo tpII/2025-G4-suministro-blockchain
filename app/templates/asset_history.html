@@ -7,7 +7,11 @@
    class="btn btn-outline-secondary mb-3 rounded-pill px-4 shadow-sm">
     ← Volver al listado
 </a>
-    <h2 class="section-title mb-4">Historial de Trazabilidad</h2>
+    <h2 class="section-title mb-4">Historial de Trazabilidad
+        <a href="{{ url_for('exportar_asset_history_csv', asset_id=asset_id) }}" class="btn btn-sm btn-secondary float-end rounded-pill px-3 shadow-sm">
+            <i class="fa-solid fa-file-csv me-2"></i> Exportar a CSV
+        </a>
+    </h2>
 
     {% if response %}
     

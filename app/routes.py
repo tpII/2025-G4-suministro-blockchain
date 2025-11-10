@@ -3,7 +3,7 @@
 from datetime import datetime
 import json
 import os
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, Response
 # Importa instancia de app y db
 from app import app, db
 # Importar clases de formulario
@@ -17,6 +17,8 @@ from werkzeug.urls import url_parse
 # Manejo de peticiones
 import requests
 import time
+import csv 
+from io import StringIO, BytesIO
 
 # Obtener organización segun el rol
 def get_org():
@@ -554,15 +556,15 @@ def asset_history(asset_id):
 
                 coordenadas.append({'latitude': data_dict['Latitude'], 'longitude': data_dict['Longitude'], 'time': entry['timestamp'], 'owner': data_dict['Owner']})
             coordenadas.reverse
-            return render_template("asset_history.html", response=response, coordenadas=coordenadas)
+            return render_template("asset_history.html", response=response, coordenadas=coordenadas, asset_id=asset_id)
         else:
             handle_error(response)
-            return render_template("asset_history.html", response=response)
+            return render_template("asset_history.html", response=response, asset_id=asset_id)
 
     except requests.exceptions.RequestException as e:
         print(f"Error en la solicitud: {e}")
 
-    return render_template("asset_history.html", response=response)
+    return render_template("asset_history.html", response=response, asset_id=asset_id)
 
 
 @app.route('/assets')
@@ -630,3 +632,212 @@ def assets_historial():
         print(f"Error en la solicitud: {e}")
 
     return render_template("assets_historial.html", title='Assets historial', response=response)
+
+@app.route('/exportar_mis_assets_csv')
+@login_required 
+def exportar_mis_assets_csv():
+    url = f"{os.environ.get('API_ADDRESS')}/api/assets"
+    headers = {
+        "X-api-key": get_api_key(),
+    }
+    org_actual = get_org()
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        
+        assets_raw = response.json()
+        
+        filtered_assets = [asset for asset in assets_raw if asset.get('Owner') == org_actual]
+
+        output = BytesIO()
+        si = StringIO()
+        cw = csv.writer(si, delimiter=';') 
+        
+        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
+        cw.writerow(headers)
+        
+        for asset in filtered_assets:
+            row = [
+                asset.get('ID', 'N/A'),
+                f"${asset.get('Price', '0')}", 
+                asset.get('Winery', ''),
+                asset.get('Varietal', ''),
+                asset.get('Year', ''),
+                f"{asset.get('Temperature', '')} °C", 
+                f"{asset.get('Humidity', '')} %", 
+                asset.get('Latitude', ''),
+                asset.get('Longitude', ''),
+                org_actual 
+            ]
+            cw.writerow(row)
+
+        output.write(u'\ufeff'.encode('utf8'))
+        output.write(si.getvalue().encode('utf8'))
+        output.seek(0)
+        
+        return Response(
+            output.read(), 
+            mimetype="text/csv",
+            headers={
+              "Content-Disposition": "attachment; filename=mis_assets.csv",
+             "Content-type": "text/csv; charset=utf-8" 
+        }
+    )
+
+    except requests.exceptions.HTTPError as e:
+        flash(f"Error HTTP al obtener assets para exportar: {e}", "error")
+        return redirect(url_for('assets'))
+    except requests.exceptions.RequestException as e:
+        flash(f"Error de conexión al obtener assets para exportar: {e}", "error")
+        return redirect(url_for('assets'))
+    except Exception as e:
+        flash(f"Error inesperado al generar CSV: {e}", "error")
+        return redirect(url_for('assets'))
+
+@app.route('/exportar_historico_assets_csv')
+@login_required 
+def exportar_historico_assets_csv():
+
+    url = f"{os.environ.get('API_ADDRESS')}/api/assets"
+    headers = {
+        "X-api-key": get_api_key(),
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        assets_raw = response.json()
+
+        output = BytesIO()
+        si = StringIO()
+    
+        cw = csv.writer(si, delimiter=';') 
+
+        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
+        cw.writerow(headers)
+
+
+        for asset in assets_raw:
+            owner_name = "N/A"
+            if asset.get('Owner') == "Org1MSP": owner_name = "Productor"
+            elif asset.get('Owner') == "Org2MSP": owner_name = "Transportador"
+            elif asset.get('Owner') == "Org3MSP": owner_name = "Cliente"
+
+            row = [
+                asset.get('ID', 'N/A'),
+                f"${asset.get('Price', '0')}", 
+                asset.get('Winery', ''),
+                asset.get('Varietal', ''),
+                asset.get('Year', ''),
+                f"{asset.get('Temperature', '')}",
+                f"{asset.get('Humidity', '')}",  
+                asset.get('Latitude', ''),
+                asset.get('Longitude', ''),
+                owner_name 
+            ]
+            cw.writerow(row)
+
+
+        output.write(u'\ufeff'.encode('utf8')) 
+        output.write(si.getvalue().encode('utf8'))
+        output.seek(0)
+
+        return Response(
+            output.read(), 
+            mimetype="text/csv",
+            headers={
+                "Content-Disposition": "attachment; filename=todos_assets.csv",
+                "Content-type": "text/csv; charset=utf-8" 
+        }
+    )
+
+    except requests.exceptions.HTTPError as e:
+        flash(f"Error HTTP al obtener assets para exportar: {e}", "error")
+        return redirect(url_for('assets_historial'))
+    except requests.exceptions.RequestException as e:
+        flash(f"Error de conexión al obtener assets para exportar: {e}", "error")
+        return redirect(url_for('assets_historial'))
+    except Exception as e:
+        flash(f"Error inesperado al generar CSV: {e}", "error")
+        return redirect(url_for('assets_historial'))
+
+
+@app.route('/exportar_asset_history_csv/<string:asset_id>')
+@login_required 
+def exportar_asset_history_csv(asset_id):
+
+    url = f"{os.environ.get('API_ADDRESS')}/api/assets/history/{asset_id}"
+    headers = {
+        "X-api-key": get_api_key(),
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        history_raw = response.json()
+
+        output = BytesIO()
+        si = StringIO()
+        cw = csv.writer(si, delimiter=';') 
+
+        headers = [
+          'TxID', 'Timestamp', 'IsDelete', 'ID', 'Precio', 'Bodega', 'Uva', 'Año', 
+           'Temperatura', 'Humedad', 'Latitud', 'Longitud', 'Propietario (Org)'
+        ]
+        cw.writerow(headers)
+
+        for entry in history_raw:
+            data_dict = json.loads(entry['data'])
+
+            seconds = entry['timestamp']['seconds']
+            nanos = entry['timestamp']['nanos']
+            timestamp = datetime.fromtimestamp(seconds + nanos / 1e9).strftime('%Y-%m-%d %H:%M:%S.%f')
+
+            owner_name = "N/A"
+            if data_dict.get('Owner') == "Org1MSP": owner_name = "Productor"
+            elif data_dict.get('Owner') == "Org2MSP": owner_name = "Transportador"
+            elif data_dict.get('Owner') == "Org3MSP": owner_name = "Cliente"
+
+            row = [
+                entry.get('txId', 'N/A'),
+                timestamp,
+                entry.get('isDelete', False),
+                data_dict.get('ID', 'N/A'),
+                data_dict.get('Price', '0'), 
+                data_dict.get('Winery', ''),
+                data_dict.get('Varietal', ''),
+                data_dict.get('Year', ''),
+                data_dict.get('Temperature', ''),
+                data_dict.get('Humidity', ''),
+                data_dict.get('Latitude', ''),
+                data_dict.get('Longitude', ''),
+                owner_name 
+            ]
+            cw.writerow(row)
+
+        # Preparación de la respuesta
+        output.write(u'\ufeff'.encode('utf8'))
+        output.write(si.getvalue().encode('utf8'))
+        output.seek(0)
+
+        return Response(
+            output.read(), 
+            mimetype="text/csv",
+            headers={
+               "Content-Disposition": f"attachment; filename=historial_activo_{asset_id}.csv",
+               "Content-type": "text/csv; charset=utf-8" 
+        }
+    )
+
+    except requests.exceptions.HTTPError as e:
+        flash(f"Error HTTP al obtener el historial para exportar: {e}", "error")
+        return redirect(url_for('asset_history', asset_id=asset_id))
+    except requests.exceptions.RequestException as e:
+        flash(f"Error de conexión al obtener el historial para exportar: {e}", "error")
+        return redirect(url_for('asset_history', asset_id=asset_id))
+    except Exception as e:
+        flash(f"Error inesperado al generar CSV: {e}", "error")
+        return redirect(url_for('asset_history', asset_id=asset_id))

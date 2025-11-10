@@ -8,6 +8,9 @@
     
     <h2 class="section-title mb-4">
         Gestión de Activos
+        <a href="{{ url_for('exportar_mis_assets_csv') }}" class="btn btn-sm btn-secondary float-end rounded-pill px-3 shadow-sm">
+            <i class="fa-solid fa-file-csv me-2"></i> Exportar a CSV
+        </a>
     </h2>
 
     {% if response %}
