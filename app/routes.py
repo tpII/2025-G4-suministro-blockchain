@@ -274,7 +274,7 @@ def handle_job_created(response, headers):
             break
         if job_resp.get('status') == 'completed':
             break
-        time.sleep(0.2)  # 0.5 segundos entre intentos
+        time.sleep(0.20)  # 0.5 segundos entre intentos
 
 def handle_error(response):
     if response.status_code == 401:
@@ -326,6 +326,7 @@ def read_asset():
     return render_template('read_asset.html', form=form)
 
 
+
 @app.route("/new_asset", methods=['GET', 'POST'])
 def new_asset():
     form = CreateAssetForm()
@@ -342,6 +343,7 @@ def new_asset():
         longitud = form.longitud.data
 
         url = f"{os.environ.get('API_ADDRESS')}/api/assets"
+        check_url = f"{os.environ.get('API_ADDRESS')}/api/assets/{rfid_value}"
         headers = {
             "X-api-key": get_api_key(),
         }
@@ -364,18 +366,21 @@ def new_asset():
             #chequear aca
             #configuracion
             #api con datos que faltan
-            response = requests.post(url, json=body, headers=headers)
+            response = requests.options(check_url,headers=headers)
+            if(response.status_code == 404):
+                response = requests.post(url, json=body, headers=headers)
 
-            if response is None:
-                raise requests.RequestException("No se recibió respuesta.")
-            
-            print(response.json())
-            if response.status_code == 200:
-                handle_success(response)
-            elif response.status_code == 202:
-                handle_job_created(response, headers)
-                return redirect(url_for('assets'))
-            elif response.status_code == 409:
+                if response is None:
+                    raise requests.RequestException("No se recibió respuesta.")
+                
+                print(response.json())
+                if response.status_code == 200:
+                    handle_success(response)
+                elif response.status_code == 202:
+                    handle_job_created(response, headers)
+                else:
+                    handle_error(response)
+            elif (response.status_code == 200):
                 flash(f"Error en la solicitud. El asset ya está registrado en la blockchain", 'error')
             else:
                 handle_error(response)
@@ -654,7 +659,7 @@ def exportar_mis_assets_csv():
         si = StringIO()
         cw = csv.writer(si, delimiter=';') 
         
-        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
+        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (°C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
         cw.writerow(headers)
         
         for asset in filtered_assets:
@@ -664,14 +669,14 @@ def exportar_mis_assets_csv():
                 asset.get('Winery', ''),
                 asset.get('Varietal', ''),
                 asset.get('Year', ''),
-                f"{asset.get('Temperature', '')} °C", 
-                f"{asset.get('Humidity', '')} %", 
+                f"{asset.get('Temperature', '')}", 
+                f"{asset.get('Humidity', '')}", 
                 asset.get('Latitude', ''),
                 asset.get('Longitude', ''),
                 org_actual 
             ]
             cw.writerow(row)
-
+       
         output.write(u'\ufeff'.encode('utf8'))
         output.write(si.getvalue().encode('utf8'))
         output.seek(0)
@@ -715,7 +720,7 @@ def exportar_historico_assets_csv():
     
         cw = csv.writer(si, delimiter=';') 
 
-        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
+        headers = ['ID', 'Precio', 'Bodega', 'Uva', 'Año', 'Temperatura (°C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)']
         cw.writerow(headers)
 
 
@@ -785,7 +790,7 @@ def exportar_asset_history_csv(asset_id):
 
         headers = [
           'TxID', 'Timestamp', 'IsDelete', 'ID', 'Precio', 'Bodega', 'Uva', 'Año', 
-           'Temperatura', 'Humedad', 'Latitud', 'Longitud', 'Propietario (Org)'
+           'Temperatura (°C)', 'Humedad (%)', 'Latitud', 'Longitud', 'Propietario (Org)'
         ]
         cw.writerow(headers)
 

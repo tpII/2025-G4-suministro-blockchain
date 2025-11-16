@@ -10,3 +10,6 @@ fabric-supply-chain/test-network/**/fabric-ca/**/msp/keystore/*
 fabric-supply-chain/test-network/**/fabric-ca/**/*.pem
 fabric-supply-chain/test-network/**/fabric-ca/**/*.db
 fabric-supply-chain/test-network/**/fabric-ca/**/*PublicKey
+
+# Metadatos Windows
+*Zone.Identifier

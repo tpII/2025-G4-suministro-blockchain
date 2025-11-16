@@ -95,78 +95,12 @@
     </div>
 </main>
 
-<div id="overlay" style="display: none;"></div>
 
-<div class="popup" id="rfid-popup" style="display: none;">
-    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20210428125647/barcode1-300x158.png" style="max-width: 150px; height: auto;">
-    <div class="popup-2">
-        <div id="tiempo_restante_timeout" class="fw-bold text-main mb-2"></div>
-        <button id="cerrarPopupBtn" class="btn btn-sm btn-primary">Cerrar Escáner</button>
-    </div>
-</div>
-
-<style>
-/* Se recomienda mover este CSS a tu archivo principal, pero lo dejo aquí por completitud */
-#overlay {
-    /* Usando la definición de tu CSS principal para el overlay */
-    background: rgba(0,0,0, .6);
-    z-index: 1060; /* Z-index alto */
-}
-
-.popup {
-    /* Usando la definición de tu CSS principal para el popup */
-    /* Asegura que el popup esté centrado y visible */
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    z-index: 1061; /* Z-index más alto que el overlay */
-    background: var(--light);
-    border: 2px solid var(--purple);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    height: 250px; /* Aumentado ligeramente para mejor contenido */
-    max-width: 450px;
-    width: 90%;
-}
-
-.popup-2 {
-    /* Contenedor del botón y texto */
-    display: flex; /* Para que se vean el botón y el texto */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-top: 1rem;
-}
-
-/* Animación del popup se mantiene igual */
-</style>
 
 
 <script type="text/javascript">
     $(document).ready(function() {
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var timeoutId;
-        var rfidPopup = $('#rfid-popup');
-        var overlay = $('#overlay');
 
-        // Función para mostrar el popup
-        function showPopup() {
-            overlay.fadeIn(200);
-            rfidPopup.fadeIn(200);
-        }
-
-        // Función para ocultar el popup
-        function hidePopup() {
-            overlay.fadeOut(200);
-            rfidPopup.fadeOut(200);
-            unsubscribeFromChannel('temp');
-            unsubscribeFromChannel('hum');
-            // Desactivar escaner DHT al cerrar manualmente
-            socket.emit('dht_request', { request: 'OFF' });
-            socket.off('temp', handleTempMessage);
-            socket.off('hum', handleHumMessage);
-        }
-        
         // --- Lógica del Mapa Leaflet ---
         try {
             var coordenadas = JSON.parse('{{ coordenadas | tojson | safe }}');
@@ -215,69 +149,7 @@
                 marker = L.marker([latitud, longitud]).addTo(map);
             });
         }
-        
-        // --- Lógica del Botón y WebSockets ---
-        subscribeToChannel('heartbeat');
-        disableButton();
-        timeoutId = setTimeout(disableButton, 1000); 
-        
-        // Manejadores MQTT
-        function handleTempMessage(data) {
-            $('#temperatura').val(data['payload']);
-            unsubscribeFromChannel('temp');
-            socket.off('temp', handleTempMessage);
-        }
-
-        function handleHumMessage(data) {
-            $('#humedad').val(data['payload']);
-            unsubscribeFromChannel('hum');
-            socket.off('hum', handleHumMessage);
-            // Ocultar popup solo después de recibir ambas mediciones (o usar un contador)
-            setTimeout(hidePopup, 500); 
-        }
-
-        socket.on('heartbeat', function(data) {
-            if (data.payload === 'A') {
-                document.getElementById('llenar_boton_dht').disabled = false;
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(disableButton, 3000); 
-            }
-        });
-
-        function disableButton() {
-            document.getElementById('llenar_boton_dht').disabled = true;
-        }
-
-        function subscribeToChannel(channel) {
-            socket.emit('subscribe_mqtt_channel', { channel: channel });
-        }
-
-        function unsubscribeFromChannel(channel) {
-            socket.emit('unsubscribe_mqtt_channel', { channel: channel });
-        }
-        
-        // Evento Click del Botón DHT
-        $('#llenar_boton_dht').click(function(event) {
-            event.preventDefault(); 
-            showPopup(); // Muestra el popup al hacer click
-            
-            // Suscribir y encender DHT
-            subscribeToChannel('temp');
-            subscribeToChannel('hum');
-            socket.emit('dht_request', { request: 'ON' });
-            
-            // Agregar controladores
-            socket.on('temp', handleTempMessage);
-            socket.on('hum', handleHumMessage);
-            
-            // Aquí puedes agregar un temporizador para ocultar el popup si no llegan los datos
-            // o simplemente esperar a que lleguen los datos (manejado en handleHumMessage).
-        });
-
-        // Evento Click del Botón Cerrar Popup
-        $('#cerrarPopupBtn').click(function() {
-            hidePopup();
-        });
     });
 </script>
+{% include "scanner.html" %}
 {% endblock %}

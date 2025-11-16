@@ -12,7 +12,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 mqtt = Mqtt(app)
 
 # Iniciar MQTT
-mqtt.init_app(app)
+#mqtt.init_app(app)
 # Iniciar socket
 socketio.run(app, host='localhost', port=5000, use_reloader=False, debug=True)
 

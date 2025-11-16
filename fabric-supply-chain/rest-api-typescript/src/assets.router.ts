@@ -28,14 +28,8 @@ import { evatuateTransaction } from './fabric';
 import { addSubmitTransactionJob } from './jobs';
 import { logger } from './logger';
 
-const {
-  CONFLICT,
-  ACCEPTED,
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  NOT_FOUND,
-  OK,
-} = StatusCodes;
+const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } =
+  StatusCodes;
 
 export const assetsRouter = express.Router();
 
@@ -50,6 +44,7 @@ assetsRouter.get('/', async (req: Request, res: Response) => {
     if (data.length > 0) {
       assets = JSON.parse(data.toString());
     }
+
     return res.status(OK).json(assets);
   } catch (err) {
     logger.error({ err }, 'Error processing get all assets request');
@@ -90,16 +85,7 @@ assetsRouter.post(
 
     const mspId = req.user as string;
     const assetId = req.body.ID;
-    const contract = req.app.locals[mspId]?.assetContract as Contract;
     try {
-      const data = await evatuateTransaction(contract, 'AssetExists', assetId);
-      const exists = data.toString() === 'true';
-      if (exists && JSON.parse(exists.toString()) === true) {
-        return res.status(CONFLICT).json({
-          status: `El activo con ID ${assetId} ya existe.`,
-          timestamp: new Date().toISOString(),
-        });
-      }
       const submitQueue = req.app.locals.jobq as Queue;
       const jobId = await addSubmitTransactionJob(
         submitQueue,
@@ -117,24 +103,19 @@ assetsRouter.post(
         req.body.Latitude,
         req.body.Longitude
       );
+
       return res.status(ACCEPTED).json({
         status: getReasonPhrase(ACCEPTED),
         jobId: jobId,
         timestamp: new Date().toISOString(),
       });
     } catch (err) {
-      if (err instanceof Error && err.message.includes('already exists')) {
-        return res.status(ACCEPTED).json({
-          status: getReasonPhrase(ACCEPTED),
-          error: `El activo con ID ${assetId} ya existe.`,
-          timestamp: new Date().toISOString(),
-        });
-      }
       logger.error(
         { err },
         'Error processing create asset request for asset ID %s',
         assetId
       );
+
       return res.status(INTERNAL_SERVER_ERROR).json({
         status: getReasonPhrase(INTERNAL_SERVER_ERROR),
         timestamp: new Date().toISOString(),

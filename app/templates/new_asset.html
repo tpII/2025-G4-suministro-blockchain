@@ -105,36 +105,8 @@
     </div>
 </main>
 
-<div id="overlay" style="display: none;"></div>
-<div class="popup" id="rfid-popup" style="display: none;">
-    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20210428125647/barcode1-300x158.png" style="max-width: 150px; height: auto;" alt="Escaneo RFID">
-    <div class="popup-2 text-center mt-2">
-        <div id="tiempo_restante_timeout" class="fw-bold text-main mb-2"></div>
-        <button id="cerrarPopupBtn" class="btn btn-sm btn-primary">Cerrar Escáner</button>
-    </div>
-</div>
-
 <script>
 $(document).ready(function() {
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-    var rfidPopup = $('.popup');
-    var overlay = $('#overlay');
-
-    // Función para mostrar el popup
-    function showPopup() {
-        overlay.fadeIn(200);
-        rfidPopup.fadeIn(200);
-    }
-    // Función para ocultar el popup
-    function hidePopup() {
-        overlay.fadeOut(200);
-        rfidPopup.fadeOut(200);
-        unsubscribe('rfid');
-        socket.emit('rfid_request',{request:'OFF'});
-        socket.off('rfid', handleRFIDMessage);
-    }
-    function subscribe(channel){ socket.emit('subscribe_mqtt_channel',{channel}); }
-    function unsubscribe(channel){ socket.emit('unsubscribe_mqtt_channel',{channel}); }
     
     // --- Lógica del Mapa Leaflet ---
     var map = L.map('map').setView([-34.9214, -57.9545], 13);
@@ -149,70 +121,9 @@ $(document).ready(function() {
         marker = L.marker([lat, lon]).addTo(map);
     });
 
-    // --- Heartbeat & botones ---
-    var timeoutId;
-    function disableButton() {
-        $('#llenar_boton_rfid').prop('disabled', true);
-        $('#llenar_boton_dht').prop('disabled', true);
-    }
-    timeoutId = setTimeout(disableButton, 1000);
-    socket.on('heartbeat', function(data){
-        if(data.payload==='A'){
-            $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', false);
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(disableButton, 3000);
-        }
-    });
 
-    // --- Lógica del Botón RFID ---
-    function handleRFIDMessage(data){
-        $('#rfid_tag').val(data.payload);
-        hidePopup(); // Oculta el popup al recibir el dato
-    }
-
-    $('#llenar_boton_rfid').click(function(e){
-        e.preventDefault();
-        showPopup();
-        subscribe('rfid');
-        socket.emit('rfid_request',{request:'ON'});
-        socket.on('rfid', handleRFIDMessage);
-    });
-    
-    // --- Lógica del Botón DHT ---
-    $('#llenar_boton_dht').click(function(e){
-        e.preventDefault();
-        
-        // Función de callback para DHT (temperatura)
-        function handleTempMessage(d){ 
-            $('#temperatura').val(d.payload); 
-            unsubscribe('temp'); 
-            socket.off('temp', handleTempMessage);
-        }
-        
-        // Función de callback para DHT (humedad)
-        function handleHumMessage(d){ 
-            $('#humedad').val(d.payload); 
-            unsubscribe('hum'); 
-            socket.off('hum', handleHumMessage);
-        }
-
-        subscribe('temp'); 
-        subscribe('hum');
-        socket.emit('dht_request',{request:'ON'});
-        
-        socket.on('temp', handleTempMessage);
-        socket.on('hum', handleHumMessage);
-        
-        // NOTA: Es común que 'dht_request:OFF' se envíe *después* de un breve retraso
-        // o después de recibir el primer dato, dependiendo de la implementación del hardware.
-        // Aquí lo dejamos al final de la lógica del cliente para simplificar.
-        socket.emit('dht_request',{request:'OFF'});
-    });
-
-    // --- Botón de Cerrar Popup ---
-    $('#cerrarPopupBtn').click(function(){
-        hidePopup();
-    });
 });
 </script>
+
+{% include "scanner.html"%}
 {% endblock %}
