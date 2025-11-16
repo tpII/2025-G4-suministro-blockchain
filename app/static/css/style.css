@@ -42,8 +42,6 @@
     font-size: 0.875em;
 }
 
-
-
 body {
     font-family: 'Mulish', sans-serif;
     font-weight: 300;
@@ -77,6 +75,7 @@ a:hover {
 .link.text-purple:hover {
     color: var(--primary) !important;
 }
+
 
 /* Clases de utilidad */
 .text-primary {color: var(--primary) !important;}
@@ -112,6 +111,21 @@ a:hover {
 }
 .btn {
     border-radius: 0.3rem !important; 
+}
+
+.alert-error {
+    background-color: #f4958c; /* rojo pastel */
+    color: white;
+}
+
+.alert-warning {
+    background-color: #f3c29f; /* rojo pastel */
+    color: white;
+}
+
+.alert-success {
+    background-color: #bdedd1; /* rojo pastel */
+    color: white;
 }
 
 /* --- Sidebar (Dashboard Navigation) --- */

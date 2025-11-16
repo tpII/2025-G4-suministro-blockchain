@@ -3,7 +3,7 @@
 from datetime import datetime
 import json
 import os
-from flask import render_template, flash, redirect, url_for, request, Response
+from flask import render_template, flash, redirect, url_for, request, Response, session
 # Importa instancia de app y db
 from app import app, db
 # Importar clases de formulario
@@ -108,7 +108,15 @@ def index():
 
     for entry in all_history_events:
         asset_id = entry.get('asset_id')
-        data_dict = json.loads(entry['data'])
+        if entry.get('data'):
+            try:
+                print("DEBUG entry['data']:", entry.get('data'))
+                data_dict = json.loads(entry['data'])
+            except json.JSONDecodeError:
+                flash("Error: los datos recibidos no son JSON válido.", "error")
+                data_dict = {}
+        else:
+            data_dict = {}
         timestamp = datetime.fromtimestamp(get_timestamp_value(entry))
 
         # Mapear Owner
@@ -348,6 +356,15 @@ def new_asset():
             "X-api-key": get_api_key(),
         }
 
+        TEMP_MIN, TEMP_MAX = 0, 30
+        HUM_MIN, HUM_MAX = 30, 70
+
+        if not (TEMP_MIN <= temperatura <= TEMP_MAX):
+            flash(f"Advertencia: La temperatura {temperatura}°C está fuera del rango permitido ({TEMP_MIN}-{TEMP_MAX}).", "warning")
+
+        if not (HUM_MIN <= humedad <= HUM_MAX):
+            flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
+
         body = {
             "Role": "admin",
             "ID": rfid_value,
@@ -411,6 +428,17 @@ def update_asset(asset_id):
         latitud = form.latitud.data
         longitud = form.longitud.data
         owner = form.owner.data
+
+        # Definir rangos aceptables
+        TEMP_MIN, TEMP_MAX = 0, 30
+        HUM_MIN, HUM_MAX = 30, 70
+
+        # Validar temperatura y humedad
+        if not (TEMP_MIN <= temperatura <= TEMP_MAX):
+            flash(f"Advertencia: La temperatura {temperatura}°C está fuera del rango permitido ({TEMP_MIN}-{TEMP_MAX}).", "warning")
+
+        if not (HUM_MIN <= humedad <= HUM_MAX):
+            flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
 
         body = {
                 "Role": "admin",
@@ -846,3 +874,34 @@ def exportar_asset_history_csv(asset_id):
     except Exception as e:
         flash(f"Error inesperado al generar CSV: {e}", "error")
         return redirect(url_for('asset_history', asset_id=asset_id))
+
+@app.route("/delete_asset/<string:asset_id>", methods=["POST"])
+def delete_asset(asset_id):
+    next_page = request.args.get("next", "assets")
+
+    url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
+    headers = {
+        "X-api-key": get_api_key(),
+    }
+
+    body = {
+        "Role": "admin"   # obligatorio según tu chaincode
+    }
+
+    try:
+        response = requests.delete(url, json=body, headers=headers)
+
+        if response is None:
+            raise requests.RequestException("No se recibió respuesta.")
+
+        if response.status_code == 200:
+            handle_success(response)
+        elif response.status_code == 202:
+            handle_job_created(response, headers)
+        else:
+            handle_error(response)
+
+    except requests.RequestException as e:
+        flash(f"Error en la solicitud: {e}", "error")
+
+    return redirect(url_for(next_page))

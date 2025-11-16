@@ -59,6 +59,14 @@
                                        class="btn btn-secondary  btn-sm rounded-pill px-3 shadow-sm">
                                         <i class="fa-solid fa-file"></i>
                                     </a>
+                                    <form action="{{ url_for('delete_asset', asset_id=asset.ID, next='assets') }}" 
+                                        method="post" 
+                                        style="display:inline;" 
+                                        onsubmit="return confirm('¿Estás seguro de que deseas eliminar el activo {{ asset.ID }}?');">
+                                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
