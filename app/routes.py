@@ -107,56 +107,83 @@ def index():
     all_history_events.sort(key=get_timestamp_value)
 
     for entry in all_history_events:
+        
+        changes = []
         asset_id = entry.get('asset_id')
-        if entry.get('data'):
+        if (entry.get('data') == "KEY DELETED"):
+             data_dict = {
+                    'Owner': "ELIMINADO",
+                    "Price": None,
+                    "Winery": None,
+                    "Varietal": None,
+                    "Year": None,
+                    "Temperature": None,
+                    "Humidity": None,
+                    "Latitude": None,
+                    "Longitude": None
+                }
+             changes.append(f"Se eliminó el activo {asset_id}")
+             operacion = "eliminacion"
+             
+        elif entry.get('data'):
             try:
-                print("DEBUG entry['data']:", entry.get('data'))
+                #print("DEBUG entry['data']:", entry.get('data'))
                 data_dict = json.loads(entry['data'])
             except json.JSONDecodeError:
                 flash("Error: los datos recibidos no son JSON válido.", "error")
                 data_dict = {}
+
+                # Mapear Owner
+            owner = data_dict.get('Owner', 'N/A')
+            if owner == "Org1MSP": owner_name = "Productor"
+            elif owner == "Org2MSP": owner_name = "Transportador"
+            elif owner == "Org3MSP": owner_name = "Cliente"
+            else: owner_name = "Desconocido"
+
+            
+
+            if asset_id not in last_state_per_asset:
+                changes.append(f"Se creó el activo {data_dict.get('ID')} bajo la propiedad de {owner_name}.")
+                operacion = "creacion"
+            else:
+                previous = last_state_per_asset[asset_id]
+                
+                if previous.get('Owner') == "ELIMINADO":
+                    changes.append(f"El activo {data_dict.get('ID')} ha vuelto a ser creado.") 
+                    operacion = "creacion"
+                    print(previous)
+                    continue
+                # Detectar cambio de propietario
+                elif previous.get('Owner') != data_dict.get('Owner'):
+                    prev_owner = previous.get('Owner')
+                    if prev_owner == "Org1MSP": prev_owner_name = "Productor"
+                    elif prev_owner == "Org2MSP": prev_owner_name = "Transportador"
+                    elif prev_owner == "Org3MSP": prev_owner_name = "Cliente"
+                    
+                    else: prev_owner_name = "Desconocido"
+                    changes.append(
+                        f"El activo {data_dict.get('ID')} ({data_dict.get('Varietal')}) fue transferido de {prev_owner_name} a {owner_name}."
+                    )
+                    operacion = "transferencia"
+                #else: print(f"Dueño previo detectado de {asset_id}: {previous.get('Owner')}")
+                
+                # Detectar cambios en otros campos
+                modificado = False
+                for key, value in data_dict.items():
+                    if key != 'Owner' and previous.get(key) != value:
+                        modificado = True
+
+                if modificado:
+                    changes.append(
+                        f"El activo {data_dict.get('ID')} ({data_dict.get('Varietal')}) fue modificado."
+                    )
+                    operacion = "modificacion"
         else:
             data_dict = {}
+            print("wtf")
         timestamp = datetime.fromtimestamp(get_timestamp_value(entry))
 
-        # Mapear Owner
-        owner = data_dict.get('Owner', 'N/A')
-        if owner == "Org1MSP": owner_name = "Productor"
-        elif owner == "Org2MSP": owner_name = "Transportador"
-        elif owner == "Org3MSP": owner_name = "Cliente"
-        else: owner_name = "Desconocido"
-
-        changes = []
-
-        if asset_id not in last_state_per_asset:
-            changes.append(f"Se creó el activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) bajo la propiedad de {owner_name}.")
-            operacion = "creacion"
-        else:
-            previous = last_state_per_asset[asset_id]
-            
-            # Detectar cambio de propietario
-            if previous.get('Owner') != data_dict.get('Owner'):
-                prev_owner = previous.get('Owner')
-                if prev_owner == "Org1MSP": prev_owner_name = "Productor"
-                elif prev_owner == "Org2MSP": prev_owner_name = "Transportador"
-                elif prev_owner == "Org3MSP": prev_owner_name = "Cliente"
-                else: prev_owner_name = "Desconocido"
-                changes.append(
-                    f"El activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) fue transferido de {prev_owner_name} a {owner_name}."
-                )
-                operacion = "transferencia"
-            
-            # Detectar cambios en otros campos
-            modificado = False
-            for key, value in data_dict.items():
-                if key != 'Owner' and previous.get(key) != value:
-                    modificado = True
-
-            if modificado:
-                changes.append(
-                    f"El activo {data_dict.get('Varietal')} ({data_dict.get('ID')}) fue modificado."
-                )
-                operacion = "modificacion"
+        
 
         # Guardar el estado actual como último conocido
         last_state_per_asset[asset_id] = data_dict
@@ -393,8 +420,10 @@ def new_asset():
                 print(response.json())
                 if response.status_code == 200:
                     handle_success(response)
+                    return redirect('/assets')
                 elif response.status_code == 202:
                     handle_job_created(response, headers)
+                    return redirect('/assets')
                 else:
                     handle_error(response)
             elif (response.status_code == 200):
@@ -572,14 +601,29 @@ def asset_history(asset_id):
         # Procesar datos antes de pasarlos a la plantilla
             coordenadas = []
             for entry in response:
+                
                 data = entry['data']
-                data_dict = json.loads(data)
-                if data_dict['Owner']  == "Org1MSP":
-                    data_dict['Owner'] = "Productor"
-                elif data_dict['Owner'] == "Org2MSP":
-                    data_dict['Owner'] = "Transportador"
-                elif data_dict['Owner'] == "Org3MSP":
-                    data_dict['Owner'] = "Cliente"
+                if (data == "KEY DELETED"):
+                    data_dict = {
+                        'Owner': "ELIMINADO",
+                        "Price": None,
+                        "Winery": "-",
+                        "Varietal": "-",
+                        "Year": "-",
+                        "Temperature": None,
+                        "Humidity": None,
+                        "Latitude": "-",
+                        "Longitude": "-"
+                    }
+                else:
+                    data_dict = json.loads(data)
+                    if data_dict['Owner']  == "Org1MSP":
+                        data_dict['Owner'] = "Productor"
+                    elif data_dict['Owner'] == "Org2MSP":
+                        data_dict['Owner'] = "Transportador"
+                    elif data_dict['Owner'] == "Org3MSP":
+                        data_dict['Owner'] = "Cliente"
+                
                 seconds = entry['timestamp']['seconds']
                 nanos = entry['timestamp']['nanos']
                 timestamp = datetime.fromtimestamp(seconds + nanos / 1e9)
@@ -874,11 +918,12 @@ def exportar_asset_history_csv(asset_id):
     except Exception as e:
         flash(f"Error inesperado al generar CSV: {e}", "error")
         return redirect(url_for('asset_history', asset_id=asset_id))
+    
 
-@app.route("/delete_asset/<string:asset_id>", methods=["POST"])
+@app.route('/delete_asset/<string:asset_id>', methods=['POST'])
+@login_required
 def delete_asset(asset_id):
-    next_page = request.args.get("next", "assets")
-
+    next_page = request.args.get("next", "index")
     url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
     headers = {
         "X-api-key": get_api_key(),
@@ -905,3 +950,4 @@ def delete_asset(asset_id):
         flash(f"Error en la solicitud: {e}", "error")
 
     return redirect(url_for(next_page))
+

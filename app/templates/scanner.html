@@ -114,6 +114,7 @@ $(document).ready(function() {
         // o después de recibir el primer dato, dependiendo de la implementación del hardware.
         // Aquí lo dejamos al final de la lógica del cliente para simplificar.
         socket.emit('dht_request',{request:'OFF'});
+        hidePopup();
     });
 
     // --- Botón de Cerrar Popup ---

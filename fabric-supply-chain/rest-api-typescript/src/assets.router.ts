@@ -367,6 +367,54 @@ assetsRouter.patch(
   }
 );
 
+/*assetsRouter.delete(
+  '/:assetId',
+  body('Role', 'must be a string').notEmpty(),
+  async (req: Request, res: Response) => {
+    logger.debug(req.body, 'Delete asset request received');
+
+    const mspId = req.user as string;
+    const assetId = req.params.assetId;
+
+    try {
+      const submitQueue = req.app.locals.jobq as Queue;
+      const jobId = await addSubmitTransactionJob(
+        submitQueue,
+        mspId,
+        'UpdateAsset',
+        req.body.Role,
+        'KEY DELETED',
+        req.body.Varietal,
+        req.body.Owner,
+        req.body.Price,
+        req.body.Temperature,
+        req.body.Humidity,
+        req.body.Winery,
+        req.body.Year,
+        req.body.Latitude,
+        req.body.Longitude
+      );
+
+      return res.status(ACCEPTED).json({
+        status: getReasonPhrase(ACCEPTED),
+        jobId: jobId,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      logger.error(
+        { err },
+        'Error processing delete asset request for asset ID %s',
+        assetId
+      );
+
+      return res.status(INTERNAL_SERVER_ERROR).json({
+        status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+);
+*/
 assetsRouter.delete(
   '/:assetId',
   body('Role', 'must be a string').notEmpty(),

@@ -59,6 +59,7 @@
                                        class="btn btn-secondary  btn-sm rounded-pill px-3 shadow-sm">
                                         <i class="fa-solid fa-file"></i>
                                     </a>
+                                    {% if current_user.role == "Productor" %}
                                     <form action="{{ url_for('delete_asset', asset_id=asset.ID, next='assets') }}" 
                                         method="post" 
                                         style="display:inline;" 
@@ -67,6 +68,7 @@
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

@@ -42,12 +42,30 @@
                         <tr>
                             <td class="fw-semibold">{{ asset.data.ID }}</td>
                             <td>{{ asset.data.Owner }}</td>
-                            <td>${{ asset.data.Price }}</td>
+                            <td>
+                                {% if asset.data.Price is not none %}
+                                    ${{ asset.data.Price }}
+                                {% else %}
+                                    
+                                {% endif %}
+                                </td>
                             <td>{{ asset.data.Winery }}</td>
                             <td>{{ asset.data.Varietal }}</td>
                             <td>{{ asset.data.Year }}</td>
-                            <td>{{ asset.data.Temperature }} °C</td>
-                            <td>{{ asset.data.Humidity }} %</td>
+                            <td>
+                                {% if asset.data.Temperature is not none %}
+                                    {{ asset.data.Temperature }} °C
+                                {% else %}
+                                    -
+                                {% endif %}
+                                </td>
+                            <td>
+                                {% if asset.data.Humidity is not none %}
+                                    {{ asset.data.Humidity }} %
+                                {% else %}
+                                    -
+                                {% endif %}
+                                </td>
                             <td>{{ asset.data.Latitude }}</td>
                             <td>{{ asset.data.Longitude }}</td>
                             <td>{{ asset.timestamp }}</td>

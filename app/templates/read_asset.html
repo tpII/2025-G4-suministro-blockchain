@@ -94,10 +94,18 @@
                         {% if respuesta_api.Owner == current_user.role %}
                         <a href="{{ url_for('transfer_asset', asset_id=respuesta_api.ID) }}" class="btn btn-primary">Transferir</a>
                         {% endif %}
-                    </div>
+                        {% if current_user.role == "Productor" and respuesta_api.Owner == current_user.role %}
+                        <form action="{{ url_for('delete_asset', asset_id=respuesta_api.ID, next=request.endpoint) }}" method="POST" class="w-100 d-grid">
+                            <button type="submit" class="btn btn-secondary"
+                                 onclick="return confirm('¿Seguro que deseas eliminar este asset?');">Eliminar
+                            </button>
+                        {% endif %}
+                        </form>
+
                     
                     <h6 class="text-primary fw-bold mt-3">Ubicación</h6>
                     <div id="map" style="height:250px; border-radius: 0.3rem; border: 1px solid #ccc;"></div>
+                    </div>
                 </div>
             </div>
         </div>
