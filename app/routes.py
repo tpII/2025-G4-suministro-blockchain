@@ -393,8 +393,10 @@ def new_asset():
                 print(response.json())
                 if response.status_code == 200:
                     handle_success(response)
+                    return redirect('/assets')
                 elif response.status_code == 202:
                     handle_job_created(response, headers)
+                    return redirect('/assets')
                 else:
                     handle_error(response)
             elif (response.status_code == 200):
@@ -874,34 +876,3 @@ def exportar_asset_history_csv(asset_id):
     except Exception as e:
         flash(f"Error inesperado al generar CSV: {e}", "error")
         return redirect(url_for('asset_history', asset_id=asset_id))
-
-@app.route("/delete_asset/<string:asset_id>", methods=["POST"])
-def delete_asset(asset_id):
-    next_page = request.args.get("next", "assets")
-
-    url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
-    headers = {
-        "X-api-key": get_api_key(),
-    }
-
-    body = {
-        "Role": "admin"   # obligatorio según tu chaincode
-    }
-
-    try:
-        response = requests.delete(url, json=body, headers=headers)
-
-        if response is None:
-            raise requests.RequestException("No se recibió respuesta.")
-
-        if response.status_code == 200:
-            handle_success(response)
-        elif response.status_code == 202:
-            handle_job_created(response, headers)
-        else:
-            handle_error(response)
-
-    except requests.RequestException as e:
-        flash(f"Error en la solicitud: {e}", "error")
-
-    return redirect(url_for(next_page))

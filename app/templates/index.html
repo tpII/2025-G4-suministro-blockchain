@@ -249,29 +249,37 @@
   var layers = {
     'Org1MSP': L.layerGroup().addTo(map),
     'Org2MSP': L.layerGroup().addTo(map),
-    'Org3MSP': L.layerGroup().addTo(map)
+    'Org3MSP': L.layerGroup().addTo(map),
   };
+
+  var ownerMap = {
+    'Org1MSP': "Productor",
+    'Org2MSP': "Transportista",
+    'Org3MSP': "Cliente",
+  }
 
   // Añadir marcadores a las capas correspondientes
   {% for asset in assets %}
   {% if asset.Latitude is not none and asset.Longitude is not none %}
-    var owner = '{{ asset.Owner }}';
-    var iconToUse = icons[owner] || new L.Icon.Default(); // fallback al default
+    var ownerKey = '{{ asset.Owner }}';  // Esto será 'Org1MSP', 'Org2MSP', etc.
+    var ownerDisplayName = ownerMap[ownerKey] || '{{ asset.Owner }}';  // Usa el nombre bonito o fallback al original
+    var iconToUse = icons[ownerKey] || new L.Icon.Default();
+    
     var marker = L.marker([{{ asset.Latitude }}, {{ asset.Longitude }}], {icon: iconToUse})
       .bindPopup(`
         <b>{{ asset.Winery }}</b><br>
         {{ asset.Varietal }} - {{ asset.Year }}<br>
-        Propietario: {{ asset.Owner }}<br>
+        Propietario: ${ownerDisplayName}<br>  <!-- Usa el nombre traducido aquí -->
         Precio: ${{ asset.Price }}<br>
         Temperatura: {{ asset.Temperature }}°C<br>
         Humedad: {{ asset.Humidity }}%
       `);
-    var owner = '{{ asset.Owner }}';  // debe ser Org1MSP, Org2MSP o Org3MSP
-    if(layers[owner]) {
-        layers[owner].addLayer(marker);
+    
+    if(layers[ownerKey]) {
+        layers[ownerKey].addLayer(marker);
     }
   {% endif %}
-{% endfor %}
+  {% endfor %}
 
 
   // Controles de filtrado por propietario

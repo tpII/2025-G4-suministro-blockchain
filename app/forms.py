@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms import FloatField, HiddenField, SelectField, StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, EqualTo
+from wtforms.validators import ValidationError, DataRequired, InputRequired, EqualTo
 from app.models import User
 
 # Formulario de login
@@ -35,17 +35,17 @@ class ReadAssetForm(FlaskForm):
 
 # Formulario de creación de asset
 class CreateAssetForm(FlaskForm):
-    rfid_tag = StringField('Rfid', validators=[DataRequired()])
+    rfid_tag = StringField('Rfid', validators=[InputRequired()])
     llenar_boton_rfid = SubmitField('Escanear RFID')
     precio = FloatField('Precio', validators=[DataRequired()])
     bodega = StringField('Bodega', validators=[DataRequired()])
     uva = StringField('Tipo de uva', validators=[DataRequired()])
     cosecha = StringField('Cosecha', validators=[DataRequired()])
-    temperatura = FloatField('Temperatura', validators=[DataRequired()])
-    humedad = FloatField('Humedad', validators=[DataRequired()])
+    temperatura = FloatField('Temperatura', validators=[InputRequired()])
+    humedad = FloatField('Humedad', validators=[InputRequired()])
     llenar_boton_dht = SubmitField('Escanear DHT')
-    latitud = FloatField('Latitud', validators=[DataRequired()])
-    longitud = FloatField('Longitud', validators=[DataRequired()])
+    latitud = FloatField('Latitud', validators=[InputRequired()])
+    longitud = FloatField('Longitud', validators=[InputRequired()])
     enviar_boton = SubmitField('Enviar Formulario')
 
 class UpdateAssetForm(FlaskForm):
@@ -53,11 +53,11 @@ class UpdateAssetForm(FlaskForm):
     bodega = StringField('Bodega', validators=[DataRequired()])
     uva = StringField('Tipo de uva', validators=[DataRequired()])
     cosecha = StringField('Cosecha', validators=[DataRequired()])
-    temperatura = FloatField('Temperatura', validators=[DataRequired()])
-    humedad = FloatField('Humedad', validators=[DataRequired()])
+    temperatura = FloatField('Temperatura', validators=[InputRequired()])
+    humedad = FloatField('Humedad', validators=[InputRequired()])
     llenar_boton_dht = SubmitField('Escanear DHT')
-    latitud = FloatField('Latitud', validators=[DataRequired()])
-    longitud = FloatField('Longitud', validators=[DataRequired()])
+    latitud = FloatField('Latitud', validators=[InputRequired()])
+    longitud = FloatField('Longitud', validators=[InputRequired()])
     owner = HiddenField()
     actualizar_boton = SubmitField('Actualizar Formulario')
 
