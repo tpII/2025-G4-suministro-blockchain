@@ -8,6 +8,7 @@ from flask import render_template, flash, redirect, url_for, request, Response, 
 from app import app, db
 # Importar clases de formulario
 from app.forms import CreateAssetForm, LoginForm, ReadAssetForm, RegistrationForm, TransferAssetForm, UpdateAssetForm
+from app.config import WINE_VARIETALS
 # Manejo de usuarios
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User
@@ -333,7 +334,7 @@ def read_asset():
     
     return render_template('read_asset.html', form=form)
 
-
+HUM_MIN, HUM_MAX = 60, 80
 
 @app.route("/new_asset", methods=['GET', 'POST'])
 def new_asset():
@@ -356,11 +357,12 @@ def new_asset():
             "X-api-key": get_api_key(),
         }
 
-        TEMP_MIN, TEMP_MAX = 0, 30
-        HUM_MIN, HUM_MAX = 30, 70
-
-        if not (TEMP_MIN <= temperatura <= TEMP_MAX):
-            flash(f"Advertencia: La temperatura {temperatura}°C está fuera del rango permitido ({TEMP_MIN}-{TEMP_MAX}).", "warning")
+        wine_info = WINE_VARIETALS.get(uva)
+        if wine_info:
+            if not (wine_info["temp_min"] <= temperatura <= wine_info["temp_max"]):
+                flash(f"Advertencia: La temperatura {temperatura}°C no es adecuada para {uva} "
+                    f"({wine_info['category']}). Rango recomendado de transporte: "
+                    f"{wine_info['temp_min']}-{wine_info['temp_max']}°C.", "warning")
 
         if not (HUM_MIN <= humedad <= HUM_MAX):
             flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
@@ -414,9 +416,7 @@ def new_asset():
 def update_asset(asset_id):
     form = UpdateAssetForm()
 
-    
     if request.method == 'POST' and form.validate_on_submit():
-        # Actualiza los campos del activo con los valores del formulario
         url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
         headers = {
             "X-api-key": get_api_key(),
@@ -431,17 +431,17 @@ def update_asset(asset_id):
         longitud = form.longitud.data
         owner = form.owner.data
 
-        # Definir rangos aceptables
-        TEMP_MIN, TEMP_MAX = 0, 30
-        HUM_MIN, HUM_MAX = 30, 70
-
-        # Validar temperatura y humedad
-        if not (TEMP_MIN <= temperatura <= TEMP_MAX):
-            flash(f"Advertencia: La temperatura {temperatura}°C está fuera del rango permitido ({TEMP_MIN}-{TEMP_MAX}).", "warning")
+        wine_info = WINE_VARIETALS.get(uva)
+        if wine_info:
+            if not (wine_info["temp_min"] <= temperatura <= wine_info["temp_max"]):
+                flash(f"Advertencia: La temperatura {temperatura}°C no es adecuada para {uva} "
+                    f"({wine_info['category']}). Rango recomendado de transporte: "
+                    f"{wine_info['temp_min']}-{wine_info['temp_max']}°C.", "warning")
 
         if not (HUM_MIN <= humedad <= HUM_MAX):
             flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
 
+      
         body = {
                 "Role": "admin",
                 "ID": asset_id,
@@ -474,7 +474,7 @@ def update_asset(asset_id):
         except requests.RequestException as e:
             flash(f"Error en la solicitud: {e}", 'error')
 
-       # Realiza una petición GET para obtener los detalles del activo
+    # Realiza una petición GET para obtener los detalles del activo
     url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
     headers = {
         "X-api-key": get_api_key(),

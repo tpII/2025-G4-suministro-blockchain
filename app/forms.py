@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import FloatField, HiddenField, SelectField, StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, InputRequired, EqualTo
 from app.models import User
+from app.config import WINE_VARIETALS  
 
 # Formulario de login
 class LoginForm(FlaskForm):
@@ -39,7 +40,7 @@ class CreateAssetForm(FlaskForm):
     llenar_boton_rfid = SubmitField('Escanear RFID')
     precio = FloatField('Precio', validators=[DataRequired()])
     bodega = StringField('Bodega', validators=[DataRequired()])
-    uva = StringField('Tipo de uva', validators=[DataRequired()])
+    uva = SelectField("Varietal", choices=[(varietal, varietal) for varietal in WINE_VARIETALS.keys()])
     cosecha = StringField('Cosecha', validators=[DataRequired()])
     temperatura = FloatField('Temperatura', validators=[InputRequired()])
     humedad = FloatField('Humedad', validators=[InputRequired()])
@@ -51,7 +52,7 @@ class CreateAssetForm(FlaskForm):
 class UpdateAssetForm(FlaskForm):
     precio = FloatField('Precio', validators=[DataRequired()])
     bodega = StringField('Bodega', validators=[DataRequired()])
-    uva = StringField('Tipo de uva', validators=[DataRequired()])
+    uva = SelectField("Varietal", choices=[(varietal, varietal) for varietal in WINE_VARIETALS.keys()])
     cosecha = StringField('Cosecha', validators=[DataRequired()])
     temperatura = FloatField('Temperatura', validators=[InputRequired()])
     humedad = FloatField('Humedad', validators=[InputRequired()])

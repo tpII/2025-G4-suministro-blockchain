@@ -44,18 +44,42 @@
             <h5 class="text-purple fw-bold mt-4 mb-3">Detalles del Vino</h5>
 
             <div class="row g-3 mb-3">
-                {% for field_name in ['precio', 'bodega', 'uva', 'cosecha'] %}
-                    {% set field = form[field_name] %}
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            {{ field(class="form-control" + (" is-invalid" if field.errors else ""), placeholder=field.label.text) }}
-                            <label for="{{ field.id }}">{{ field.label.text }}</label>
-                        </div>
-                        {% for error in field.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.precio(class="form-control" + (" is-invalid" if form.precio.errors else ""), placeholder="Precio") }}
+                        <label for="{{ form.precio.id }}">Precio</label>
                     </div>
-                {% endfor %}
+                    {% for error in form.precio.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.bodega(class="form-control" + (" is-invalid" if form.bodega.errors else ""), placeholder="Bodega") }}
+                        <label for="{{ form.bodega.id }}">Bodega</label>
+                    </div>
+                    {% for error in form.bodega.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.uva(class="form-select" + (" is-invalid" if form.uva.errors else ""), id="uva") }}
+                        <label for="{{ form.uva.id }}">Varietal</label>
+                    </div>
+                    {% for error in form.uva.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.cosecha(class="form-control" + (" is-invalid" if form.cosecha.errors else ""), placeholder="Cosecha") }}
+                        <label for="{{ form.cosecha.id }}">Cosecha</label>
+                    </div>
+                    {% for error in form.cosecha.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
             </div>
 
             <h5 class="text-purple fw-bold mt-4 mb-3">Condiciones Ambientales</h5>
