@@ -13,24 +13,13 @@
             <div  class="input-group mt-1 gap-2" style="padding: 0.5rem;">
                 {{ form.rfid_tag(class="form-control", placeholder="Haga clic en 'Escanear'...") }}
                 <div class="d-flex justify-content-center gap-2">
-                {{ form.llenar_boton(class="btn btn-primary") }}
+                {{ form.llenar_boton(class="btn btn-primary", id="llenar_boton_rfid") }}
                 {{ form.enviar_boton(class="btn btn-secondary") }}</div>
             </div>
         </form>
     </div>
 </div>
-    
-<div class="popup">
-    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20210428125647/barcode1-300x158.png" alt="Escaneando">
-    <div class="popup-2">
-        <div id="tiempo_restante_timeout"></div>
-        <button id="cerrarPopupBtn" class="btn btn-danger btn-sm">Cancelar</button>
-    </div>
-</div>
-
-<div id="overlay"></div>
-
-
+ 
 {% if respuesta_api %}
     <div class="card shadow-sm border-secondary">
         <div class="card-header bg-purple text-white">
@@ -116,86 +105,9 @@
 {% endif %}
 
 
-<style>
-/* Se eliminaron las clases .response_div y .response_field 
-  porque ahora usamos Bootstrap (card, input-group) 
-*/
-
-#overlay {
-    content: "";
-    position: fixed;
-    z-index: 1060; /* Z-index alto, por encima del navbar (1055) */
-    min-height: 100vh;
-    width: 100%;
-    left: 0;
-    top: 0;
-    background: rgba(0,0,0, .5);
-    display: none;
-}
-
-.popup {
-    border-radius: 16px;
-    position: fixed;
-    top: 50%; /* Centrado vertical */
-    left: 50%; /* Centrado horizontal */
-    transform: translate(-50%, -50%); /* Ajuste fino de centrado */
-    height: 200px;
-    width: 90%;
-    max-width: 450px; /* Ancho máximo */
-    z-index: 1061; /* Por encima del overlay */
-    background: #ffff;
-    border: 2px solid black;
-    display: flex;
-    flex-direction: column; /* Cambiado a columna para ordenar mejor */
-    justify-content: center;
-    align-items: center;
-    display: none;
-    padding: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-
-.popup-2 {
-    /* Este div ahora solo contiene el botón */
-    width: 100%;
-    text-align: center;
-    margin-top: 1rem;
-    display: block; /* Cambiado de flex a block */
-}
-.popup::after {
-    border-radius: 16px;
-    content:"ESCANEANDO RFID...";
-    text-align: center;
-    position: absolute;
-    top: 10px; /* Posicionado arriba */
-    background-color: lightgreen;
-    margin: 10px;
-    padding: 5px;
-    width: 80%;
-    border: 2px solid black;
-    animation: MoveUpDown 3s ease-in-out infinite;
-}
-
-@keyframes MoveUpDown {
-    0% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(15px); /* Movimiento más sutil */
-    }
-    100% {
-        transform: translateY(0px)
-    }
-}
-</style>
 
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function() {
-    // ... (El resto de tu script va aquí sin cambios) ...
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-    console.log(socket);
-    subscribeToChannel('heartbeat');
-    disableButton();
-    var timeoutId;
     
     try {
         var coordenadas = [];
@@ -229,53 +141,9 @@ $(document).ready(function() {
         }
     }
 
-    socket.on('heartbeat', function(data) {
-        if (data.payload === 'A') {
-            var btn = document.getElementById('llenar_boton');
-            if(btn) btn.disabled = false;
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(disableButton, 3000);
-        }
-    });
-
-    function disableButton() {
-        var btn = document.getElementById('llenar_boton');
-        if (btn) btn.disabled = true;
-    }
-
-    timeoutId = setTimeout(disableButton, 1000); 
-
-    function subscribeToChannel(channel) {
-        socket.emit('subscribe_mqtt_channel', { channel: channel });
-    }
-
-    function unsubscribeFromChannel(channel) {
-        socket.emit('unsubscribe_mqtt_channel', { channel: channel });
-    }
-
-    function handleMqttMessage(data) {
-        document.getElementById('rfid_tag').value = data['payload'];
-        unsubscribeFromChannel('rfid');
-        $(".popup, .popup-2, #overlay").hide();
-        socket.off('rfid', handleMqttMessage);
-    }
-
-    $('#llenar_boton').click(function(event) {
-        event.preventDefault();
-        $("#overlay").show();
-        $('.popup, .popup-2').css('display', 'flex');
-        subscribeToChannel('rfid');
-        socket.emit('rfid_request', { request: 'ON' });
-        socket.on('rfid', handleMqttMessage);
-    });
-
-    $('#cerrarPopupBtn').click(function(event) {
-        console.log('tocaste cerrar');
-        unsubscribeFromChannel('rfid');
-        socket.emit('rfid_request', { request: 'OFF' });
-        $(".popup, .popup-2, #overlay").hide();
-    });
+   
 });
 </script>
 
+{% include "scanner.html" %}
 {% endblock %}

@@ -286,7 +286,7 @@ def handle_job_created(response, headers):
             break
         if job_resp.get('status') == 'completed':
             break
-        time.sleep(0.20)  # 0.5 segundos entre intentos
+        time.sleep(0.2)  # 0.5 segundos entre intentos
 
 def handle_error(response):
     if response.status_code == 401:
@@ -360,16 +360,7 @@ def new_asset():
             "X-api-key": get_api_key(),
         }
 
-        wine_info = WINE_VARIETALS.get(uva)
-        if wine_info:
-            if not (wine_info["temp_min"] <= temperatura <= wine_info["temp_max"]):
-                flash(f"Advertencia: La temperatura {temperatura}°C no es adecuada para {uva} "
-                    f"({wine_info['category']}). Rango recomendado de transporte: "
-                    f"{wine_info['temp_min']}-{wine_info['temp_max']}°C.", "warning")
-
-        if not (HUM_MIN <= humedad <= HUM_MAX):
-            flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
-
+       
         body = {
             "Role": "admin",
             "ID": rfid_value,
@@ -395,12 +386,24 @@ def new_asset():
                 if response is None:
                     raise requests.RequestException("No se recibió respuesta.")
                 
+                wine_info = WINE_VARIETALS.get(uva)
+                if wine_info:
+                    if not (wine_info["temp_min"] <= temperatura <= wine_info["temp_max"]):
+                        flash(f"Advertencia: La temperatura {temperatura}°C no es adecuada para {uva} "
+                            f"({wine_info['category']}). Rango recomendado de transporte: "
+                            f"{wine_info['temp_min']}-{wine_info['temp_max']}°C.", "warning")
+
+                if not (HUM_MIN <= humedad <= HUM_MAX):
+                    flash(f"Advertencia: La humedad {humedad}% está fuera del rango permitido ({HUM_MIN}-{HUM_MAX}).", "warning")
+
                 print(response.json())
                 if response.status_code == 200:
                     handle_success(response)
+                    time.sleep(0.1)
                     return redirect('/assets')
                 elif response.status_code == 202:
                     handle_job_created(response, headers)
+                    time.sleep(0.1)
                     return redirect('/assets')
                 else:
                     handle_error(response)

@@ -14,7 +14,7 @@ mqtt = Mqtt(app)
 # Iniciar MQTT
 mqtt.init_app(app)
 # Iniciar socket
-#socketio.run(app, host='localhost', port=5000, use_reloader=False, debug=True)
+#socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False, debug=True)
 
 # Manejadores de mensajes
 mqtt_handlers = {}
@@ -37,16 +37,29 @@ mqtt_handlers['temp'] = handle_temp_message
 mqtt_handlers['hum'] = handle_hum_message
 mqtt_handlers['heartbeat'] = handle_heartbeat_message
 
-# Cuando llegan mensajes
+
+@mqtt.on_connect()
+def handle_connect(client, userdata, flags, rc):
+    print(f"🟢 MQTT conectado con código: {rc}")
+   
+    mqtt.subscribe('heartbeat')
+    print("🟢 Suscrito a tópico: heartbeat")
+
+@mqtt.on_disconnect()
+def handle_disconnect(client, userdata, rc):
+    print(f"🔴 MQTT desconectado con código: {rc}")
+
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
+    print(f"📨 Mensaje MQTT recibido [tópico: {message.topic}]: {message.payload.decode()}")
     data = dict(
         topic=message.topic,
         payload=message.payload.decode()
     )
-    print("LLEGO")
     if message.topic in mqtt_handlers:
         mqtt_handlers[message.topic](data)
+    else:
+        print(f"❌ No hay handler para el tópico: {message.topic}")
 
 # Solicitud de escaneo RFID
 @socketio.on('rfid_request')

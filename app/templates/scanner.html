@@ -17,7 +17,6 @@
 
 <script>
 $(document).ready(function() {
-
    var socket = io.connect('http://' + document.domain + ':' + location.port);
     var popup = $('#scanner-popup');
     var overlay = $('#overlay');
@@ -58,17 +57,37 @@ $(document).ready(function() {
     
     // --- Heartbeat & botones ---
     var timeoutId;
+    
+    function resetHeartbeatTimer() {
+        // Limpiar timeout anterior
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        
+        // Habilitar botones
+        $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', false);
+        
+        // Configurar nuevo timeout para deshabilitar en 5 segundos
+        timeoutId = setTimeout(function() {
+            $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', true);
+            console.log("Botones deshabilitados por falta de heartbeat");
+        }, 5000);
+    }
+    
     function disableButton() {
         $('#llenar_boton_rfid').prop('disabled', true);
         $('#llenar_boton_dht').prop('disabled', true);
     }
-    timeoutId = setTimeout(disableButton, 1000);
+    
+
+    socket.off('heartbeat');
     socket.on('heartbeat', function(data){
-        if(data.payload==='A'){
+        if(data.payload =='A'){
             $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', false);
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(disableButton, 3000);
-        }
+            resetHeartbeatTimer();
+            subscribe('heartbeat');
+            console.log("LLEGO_2")
+        }else console.log("NO LLEGA")
     });
     
     // --- Lógica del Botón RFID ---
@@ -83,12 +102,14 @@ $(document).ready(function() {
         subscribe('rfid');
         socket.emit('rfid_request',{request:'ON'});
         socket.on('rfid', handleRFIDMessage);
+        resetHeartbeatTimer();
     });
     
     // --- Lógica del Botón DHT ---
     $('#llenar_boton_dht').click(function(e){
         e.preventDefault();
         showPopup("dht")
+        resetHeartbeatTimer();
         // Función de callback para DHT (temperatura)
         function handleTempMessage(d){ 
             $('#temperatura').val(d.payload); 
