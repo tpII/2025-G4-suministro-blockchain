@@ -1,7 +1,7 @@
 # app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import FloatField, HiddenField, SelectField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import FloatField, HiddenField, SelectField, StringField, PasswordField, BooleanField, SubmitField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, InputRequired, EqualTo
 from app.models import User
 from app.config import WINE_VARIETALS  
@@ -66,3 +66,42 @@ class TransferAssetForm(FlaskForm):
     owner = SelectField('Dueño', choices=[])
     transferir_boton = SubmitField('Transferir asset')
 
+class EditVarietalForm(FlaskForm):
+    name = StringField("Nombre", validators=[DataRequired()])
+    category = SelectField(
+        "Categoría",
+        choices=[
+            ("Tintos ligeros", "Tintos ligeros"),
+            ("Tintos con cuerpo", "Tintos con cuerpo"),
+            ("Tintos con crianza", "Tintos con crianza"),
+            ("Blancos jóvenes", "Blancos jóvenes"),
+            ("Blancos con crianza", "Blancos con crianza"),
+            ("Rosados ligeros", "Rosados ligeros"),
+            ("Espumosos", "Espumosos"),
+            ("Dulces/licorosos", "Dulces/licorosos"),
+        ],
+        validators=[DataRequired()]
+    )
+    temp_min = FloatField("Temperatura mínima", validators=[DataRequired()])
+    temp_max = FloatField("Temperatura máxima", validators=[DataRequired()])
+    submit = SubmitField("Guardar cambios")
+
+class NewVarietalForm(FlaskForm):
+    name = StringField("Nombre", validators=[DataRequired()])
+    category = SelectField(
+        "Categoría",
+        choices=[
+            ("Tintos ligeros", "Tintos ligeros"),
+            ("Tintos con cuerpo", "Tintos con cuerpo"),
+            ("Tintos con crianza", "Tintos con crianza"),
+            ("Blancos jóvenes", "Blancos jóvenes"),
+            ("Blancos con crianza", "Blancos con crianza"),
+            ("Rosados ligeros", "Rosados ligeros"),
+            ("Espumosos", "Espumosos"),
+            ("Dulces/licorosos", "Dulces/licorosos"),
+        ],
+        validators=[DataRequired()]
+    )
+    temp_min = IntegerField("Temperatura mínima", validators=[DataRequired()])
+    temp_max = IntegerField("Temperatura máxima", validators=[DataRequired()])
+    submit = SubmitField("Agregar variedad")

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Modal de eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="delete-text"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+        <form id="delete-form" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-danger fw-bold">Eliminar</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- Fin modal -->
+
+
+<div class="container-fluid px-4">
+
+    <h2 class="section-title mb-4">
+        Configuración de Variedades de Uva
+        <a href="{{ url_for('config_new') }}" 
+           class="btn btn-sm btn-secondary float-end rounded-pill px-3 shadow-sm">
+            <i class="fa-solid fa-plus me-2"></i> Nueva Variedad
+        </a>
+    </h2>
+
+    {% if varietals %}
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+
+        <div class="card-body bg-light p-0">
+            <div class="table-responsive rounded-bottom">
+
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-secondary text-center">
+                        <tr>
+                            <th scope="col">Variedad</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Temp. Mín</th>
+                            <th scope="col">Temp. Máx</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="text-center">
+
+                        {% for name, data in varietals.items() %}
+                            <tr>
+                                <td class="fw-semibold">{{ name }}</td>
+                                <td>{{ data.category }}</td>
+
+                                <td>
+                                    {{ data.temp_min|int if data.temp_min == data.temp_min|int else data.temp_min }} °C
+                                </td>
+
+                                <td>
+                                    {{ data.temp_max|int if data.temp_max == data.temp_max|int else data.temp_max }} °C
+                                </td>
+
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+
+                                        <a href="{{ url_for('config_edit', name=name) }}" 
+                                           class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmDeleteModal"
+                                                data-name="{{ name }}"
+                                                data-url="{{ url_for('config_delete', name=name) }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-secondary text-center mt-4 shadow-sm rounded-3">
+        No hay variedades configuradas.
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("confirmDeleteModal");
+    const text = document.getElementById("delete-text");
+    const form = document.getElementById("delete-form");
+
+    modal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
+        const varietal = button.getAttribute("data-name");
+        const url = button.getAttribute("data-url");
+
+        text.textContent = `¿Seguro que querés eliminar el varietal "${varietal}"?`;
+        form.action = url;
+    });
+});
+</script>
+
+{% endblock %}

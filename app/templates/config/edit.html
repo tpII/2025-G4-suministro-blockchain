@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<main class="content-body pt-3 d-flex justify-content-center position-relative">
+
+
+    <a href="{{ url_for('config_home') }}" 
+       class="btn btn-close-white border rounded-circle  position-absolute top-0 start-0 m-4"
+       style="display:flex; align-items:center; justify-content:center;">
+        <i class="fa fa-arrow-left" aria-hidden="true"> </i>
+    </a>
+
+    <div class="p-4 rounded box-shadow bg-light" style="max-width: 800px; width: 100%;">
+
+        <h1 class="section-title text-secondary mb-4 text-center">
+            Editar Variedad
+        </h1>
+
+        <form method="POST" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Nombre -->
+            <div class="form-floating mb-4">
+                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Nombre de la variedad") }}
+                <label for="{{ form.name.id }}">Nombre de la Variedad</label>
+                {% for error in form.name.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-floating mb-4">
+                {{ form.category(class="form-control" + (" is-invalid" if form.category.errors else ""), placeholder="Categoría") }}
+                <label for="{{ form.category.id }}">Categoría</label>
+                {% for error in form.category.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Temperaturas -->
+            <h5 class="text-purple fw-bold mt-4 mb-3">Rango de Temperatura</h5>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.temp_min(class="form-control" + (" is-invalid" if form.temp_min.errors else ""), placeholder="Temp Mínima") }}
+                        <label for="{{ form.temp_min.id }}">Temperatura Mínima (°C)</label>
+                    </div>
+                    {% for error in form.temp_min.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.temp_max(class="form-control" + (" is-invalid" if form.temp_max.errors else ""), placeholder="Temp Máxima") }}
+                        <label for="{{ form.temp_max.id }}">Temperatura Máxima (°C)</label>
+                    </div>
+                    {% for error in form.temp_max.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 col-md-6 mx-auto mt-5">
+                <button class="btn btn-secondary fw-bold p-3 rounded-pill text-uppercase">
+                    Guardar Cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+
+{% endblock %}

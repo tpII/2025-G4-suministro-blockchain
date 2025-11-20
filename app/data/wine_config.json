@@ -1,0 +1,114 @@
+{
+    "WINE_VARIETALS": {
+        "Gamay": {
+            "category": "Tintos ligeros",
+            "temp_min": 10,
+            "temp_max": 18
+        },
+        "Beaujolais": {
+            "category": "Tintos ligeros",
+            "temp_min": 10,
+            "temp_max": 18
+        },
+        "Cabernet Sauvignon": {
+            "category": "Tintos con cuerpo",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Syrah": {
+            "category": "Tintos con cuerpo",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Malbec": {
+            "category": "Tintos con cuerpo",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Rioja Reserva": {
+            "category": "Tintos con crianza",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Bordeaux": {
+            "category": "Tintos con crianza",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Nebbiolo": {
+            "category": "Tintos con crianza",
+            "temp_min": 12,
+            "temp_max": 20
+        },
+        "Sauvignon Blanc": {
+            "category": "Blancos jóvenes",
+            "temp_min": 8,
+            "temp_max": 12
+        },
+        "Verdejo": {
+            "category": "Blancos jóvenes",
+            "temp_min": 8,
+            "temp_max": 12
+        },
+        "Albariño": {
+            "category": "Blancos jóvenes",
+            "temp_min": 8,
+            "temp_max": 12
+        },
+        "Viognier": {
+            "category": "Blancos con crianza",
+            "temp_min": 10,
+            "temp_max": 14
+        },
+        "Rosado de Garnacha": {
+            "category": "Rosados ligeros",
+            "temp_min": 8,
+            "temp_max": 12
+        },
+        "Provence Rosé": {
+            "category": "Rosados ligeros",
+            "temp_min": 8,
+            "temp_max": 12
+        },
+        "Champagne": {
+            "category": "Espumosos",
+            "temp_min": 6,
+            "temp_max": 12
+        },
+        "Cava": {
+            "category": "Espumosos",
+            "temp_min": 6,
+            "temp_max": 12
+        },
+        "Prosecco": {
+            "category": "Espumosos",
+            "temp_min": 6,
+            "temp_max": 12
+        },
+        "Oporto": {
+            "category": "Dulces/licorosos",
+            "temp_min": 10,
+            "temp_max": 14
+        },
+        "Moscatel": {
+            "category": "Dulces/licorosos",
+            "temp_min": 10,
+            "temp_max": 14
+        },
+        "Sauternes": {
+            "category": "Dulces/licorosos",
+            "temp_min": 10,
+            "temp_max": 14
+        },
+        "Pinot Noir": {
+            "category": "Tintos Ligeros",
+            "temp_min": 10,
+            "temp_max": 18
+        },
+        "Chardonnay barricado": {
+            "category": "Blancos con crianza",
+            "temp_min": 10,
+            "temp_max": 14
+        }
+    }
+}

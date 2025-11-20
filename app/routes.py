@@ -3,12 +3,15 @@
 from datetime import datetime
 import json
 import os
+from app.config_loader import load_wine_config, save_wine_config
 from flask import render_template, flash, redirect, url_for, request, Response, session
 # Importa instancia de app y db
 from app import app, db
 # Importar clases de formulario
-from app.forms import CreateAssetForm, LoginForm, ReadAssetForm, RegistrationForm, TransferAssetForm, UpdateAssetForm
-from app.config import WINE_VARIETALS
+from app.forms import CreateAssetForm, LoginForm, ReadAssetForm, RegistrationForm, TransferAssetForm, UpdateAssetForm, NewVarietalForm, EditVarietalForm
+#from app.config import WINE_VARIETALS
+from app.config_loader import load_wine_config
+
 # Manejo de usuarios
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User
@@ -415,12 +418,14 @@ def new_asset():
 @app.route("/update_asset/<string:asset_id>", methods=['GET', 'POST'])
 def update_asset(asset_id):
     form = UpdateAssetForm()
-
+    config = load_wine_config()
+    WINE_VARIETALS = config["WINE_VARIETALS"]
     if request.method == 'POST' and form.validate_on_submit():
         url = f"{os.environ.get('API_ADDRESS')}/api/assets/{asset_id}"
         headers = {
             "X-api-key": get_api_key(),
         }
+        
         precio = form.precio.data
         bodega = form.bodega.data
         uva = form.uva.data
@@ -876,3 +881,95 @@ def exportar_asset_history_csv(asset_id):
     except Exception as e:
         flash(f"Error inesperado al generar CSV: {e}", "error")
         return redirect(url_for('asset_history', asset_id=asset_id))
+
+
+
+
+@app.route("/config")
+@login_required
+def config_home():
+    config = load_wine_config()
+
+    # Ordenar por categoría y luego por nombre de varietal
+    varietals = dict(
+        sorted(
+            config["WINE_VARIETALS"].items(),
+            key=lambda x: (x[1]["category"].lower(), x[0].lower())
+        )
+    )
+
+    return render_template("config/list.html", varietals=varietals)
+
+@app.route("/config/edit/<string:name>", methods=["GET", "POST"])
+@login_required
+def config_edit(name):
+    config = load_wine_config()
+    varietals = config["WINE_VARIETALS"]
+
+    if name not in varietals:
+        flash("La variedad no existe.", "error")
+        return redirect(url_for("config_home"))
+
+    form = EditVarietalForm()
+
+    if request.method == "POST" and form.validate_on_submit():
+        updated_name = form.name.data
+
+        # Si el nombre cambió, se renueva la clave
+        if updated_name != name:
+            varietals[updated_name] = varietals.pop(name)
+
+        varietals[updated_name]["category"] = form.category.data
+        varietals[updated_name]["temp_min"] = form.temp_min.data
+        varietals[updated_name]["temp_max"] = form.temp_max.data
+
+        save_wine_config(config)
+        flash("Variedad actualizada correctamente.", "success")
+        return redirect(url_for("config_home"))
+
+    # Cargar datos al formulario
+    form.name.data = name
+    form.category.data = varietals[name]["category"]
+    form.temp_min.data = varietals[name]["temp_min"]
+    form.temp_max.data = varietals[name]["temp_max"]
+
+    return render_template("config/edit.html", form=form)
+
+@app.route("/config/new", methods=["GET", "POST"])
+@login_required
+def config_new():
+    form = NewVarietalForm()
+
+    if request.method == "POST" and form.validate_on_submit():
+        config = load_wine_config()
+        varietals = config["WINE_VARIETALS"]
+
+        name = form.name.data
+        if name in varietals:
+            flash("La variedad ya existe.", "error")
+            return redirect(url_for("config_home"))
+
+        varietals[name] = {
+            "category": form.category.data,
+            "temp_min": form.temp_min.data,
+            "temp_max": form.temp_max.data
+        }
+
+        save_wine_config(config)
+        flash("Nueva variedad agregada.", "success")
+        return redirect(url_for("config_home"))
+
+    return render_template("config/new.html", form=form)
+
+@app.route("/config/delete/<string:name>", methods=["POST"])
+@login_required
+def config_delete(name):
+    config = load_wine_config()
+    varietals = config["WINE_VARIETALS"]
+
+    if name in varietals:
+        del varietals[name]
+        save_wine_config(config)
+        flash("Variedad eliminada.", "success")
+
+    return redirect(url_for("config_home"))
