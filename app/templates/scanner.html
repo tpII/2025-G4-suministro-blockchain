@@ -110,6 +110,9 @@ $(document).ready(function() {
     }
     
     function leerDHT(){
+        socket.off('temp');
+        socket.off('hum');
+        
         resetHeartbeatTimer();
         subscribe('temp'); 
         subscribe('hum');
@@ -137,8 +140,6 @@ $(document).ready(function() {
         showPopup("dht")
         
         leerDHT();
-        
-        hidePopup();
     });
 
     // --- Botón de Cerrar Popup ---
