@@ -22,6 +22,11 @@ DIR_PRIVATE_KEY_FILE_ORG2="${TEST_NETWORK_HOME}/organizations/peerOrganizations/
 DIR_PRIVATE_KEY_FILE_ORG3="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/users/User1@org3.example.com/msp/keystore/"
 : "${PRIVATE_KEY_FILE_ORG3:="${DIR_PRIVATE_KEY_FILE_ORG3}/$(basename "${DIR_PRIVATE_KEY_FILE_ORG3}"/*"_sk")"}"
 
+ORG1_APIKEY=$(uuidgen)
+
+ORG2_APIKEY=$(uuidgen)
+
+ORG3_APIKEY=$(uuidgen)
 cat << ENV_END > .env
 # Generated .env file
 # See src/config.ts for details of all the available configuration variables
@@ -46,15 +51,22 @@ HLF_PRIVATE_KEY_ORG3="$(cat ${PRIVATE_KEY_FILE_ORG3} | sed -e 's/$/\\n/' | tr -d
 
 REDIS_PORT=6379
 
-ORG1_APIKEY=$(uuidgen)
+ORG1_APIKEY=${ORG1_APIKEY}
 
-ORG2_APIKEY=$(uuidgen)
+ORG2_APIKEY=${ORG2_APIKEY}
 
-ORG3_APIKEY=$(uuidgen)
-
-
+ORG3_APIKEY=${ORG3_APIKEY}
 ENV_END
- 
+
+
+API_KEYS_CONTENT="\nAPI_KEY_PRODUCTOR=${ORG1_APIKEY}
+API_KEY_TRANSPORTADOR=${ORG2_APIKEY}
+API_KEY_CLIENTE=${ORG3_APIKEY}"
+
+echo "${API_KEYS_CONTENT}" >> ../../../.env
+# *** FIN DEL BLOQUE AÑADIDO ***
+
+
 if [ "${AS_LOCAL_HOST}" = "true" ]; then
 
 cat << LOCAL_HOST_END >> .env

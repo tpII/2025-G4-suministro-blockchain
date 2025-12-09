@@ -82,7 +82,6 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
     <li><a href="#prerequisites-hyperledger-fabric"> ➤ Prerrequisitos-Hyperledger Fabric</a></li>
     <li><a href="#prerequisites-mcu"> ➤ Prerrequisitos-ESP8266/ESP32</a></li>
     <li><a href="#prerequisites-app-web"> ➤ Prerrequisitos-Aplicación Web</a></li>
-    <li><a href="#conf-env"> ➤ Configuración del entorno
     <li><a href="#installation-hyperledger-fabric"> ➤ Instalación-Hyperledger Fabric</a></li>
     <li><a href="#installation-app-web"> ➤ Instalación-Aplicación Web</a></li>
     <li><a href="#roles"> ➤ Roles</a></li>
@@ -142,30 +141,6 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 </details>
 
 ---
-<!-- Configuración del entorno -->
-<h1 id="conf-env">⚙️ Configuración del entorno</h1>
-<details>
-  <summary>Configuración del entorno</summary>
-
-  <p>
-    Se debe crear el archivo de configuración <code>.env</code> y copiar el contenido del archivo <code>.env.example</code>. 
-    Completar con los datos correspondientes. Finalmente, se debe ejecutar el script 
-    <code>generateEnv.py</code> para generar la cabecera <code>config.h</code> que necesita el archivo <code>.ino</code>.
-  </p>
-
-  <p>
-    <strong>Nota:</strong> Tener en cuenta que la IP que utiliza el WSL no coincide con la de la PC. 
-    Para obtener la IP de WSL, ejecutar:
-  </p>
-  <p> Desde Windows PowerShell</p>
-  <pre><code>wsl hostname -I</code></pre>
-  <p> Desde Terminal WSL </p>
-  <pre><code>ip addr show eth0</code></pre>
-</details>
-
-
-
-
 <!-- Instalación HYPERLEDGER FABRIC -->
 <h1 id="installation-hyperledger-fabric"> ⛓️ Instalación-Hyperledger Fabric</h1>
 
@@ -200,23 +175,8 @@ El Sistema de Seguimiento de la Cadena de Suministro (SSCS) es una demostración
 ```
 ---
   <p>
-    <strong>Nota:</strong> Verificar que el chaincode se haya desplegado en las 3 organizaciones. Si ese no es el caso, seguir las siguientes instrucciones.
-
-    1. Comprobar que no hay contratos desplegados en el nodo con el comando peer lifecycle chaincode queryinstalled
-   
-    2. Si no hay contratos, se deben poner las variables de entorno para invocar la blockchain desde la organización correspondiente y crear el paquete básico de la blockchain llamado basic.tar.gz: peer lifecycle chaincode package basic.tar.gz --path ../chaincode-typescript/ --lang node --label basic_1.0
-   
-    3. Instalar el paquete basic.tar.gz: peer lifecycle chaincode install basic.tar.gz
-   
-    4. . Confirmar la instalación con peer lifecycle chaincode queryinstalled
-   
-    5. Exportar el PACKEDGE ID de acuerdo al valor especificado en el comando anterior. Por ejemplo, si la salida fue 
-   <code>Get installed chaincodes on peer:
-    Package ID: basic_1:5443b5b557efd3faece8723883d28d6f7026c0bf12245de109b89c5c4fe64887, Label: basic_1, </code> <pre>entonces se debe hacer</pre> <pre><code>export CC_PACKAGE_ID=basic_1:5443b5b557efd3faece8723883d28d6f7026c0bf12245de109b89c5c4fe64887</pre></code>
-  
-    6. Aprobar la definición del paquete básico: 
-   <pre><code>peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1</code></pre> 
-    
+    <strong>Nota:</strong> Verificar que el chaincode se haya desplegado en las 3 organizaciones.
+  </p>
 
 
 <p>Ahora se puede probar el chaincode, se pueden setear las variables para actuar como organización 1:</p>
@@ -256,9 +216,44 @@ export CORE_PEER_ADDRESS=localhost:7051
     <p>Tener en cuenta que levanta <strong>TODOS</strong> los contenedores Docker.</p> 
   </p>
 
-  <p>
- <strong>Anexo? - Variables de entorno de Org2:</strong> Para realizar comandos de la blockchain desde la organización 2, se deben exportar las siguientes variables de entorno: 
- </p>
+</details>
+
+<details>
+  <summary>API REST</summary>
+  <p>Finalizadas las pruebas del chaincode se puede levantar el servidor API REST y el servidor REDIS (que se encarga de la cola de tareas). En primer lugar, se deben configurar las API KEYS: 
+
+  ```sh
+  cd ../rest-api-typescript/scripts
+  ./generateEnv.sh
+  ```
+  Luego, se debe volver a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>
+
+  ```sh
+  cd ..
+  npm install
+  npm run build
+  ```
+  <p>Luego se debe inicializar el server REDIS, que se encarga de mantener la cola de tareas que le van llegando en cada transacción:</p>
+
+  ```sh
+  export REDIS_PASSWORD=$(uuidgen)
+  npm run start:redis	
+  ```
+
+  <p>Finalmente iniciar el servidor API REST</p>
+
+  ```
+  npm run start:dev
+  ```
+
+  > Las API-KEYS correspondientes a cada organización estan en el archivo .env y deben ser enviadas en la cabecera de la petición HTTP al servidor REST para que la misma sea autorizada.
+</details>
+
+
+<details>
+  <summary>Información útil</summary>
+  
+  <strong>Variables de entorno de Org2:</strong> Para realizar comandos de la blockchain desde la organización 2 en consola, se deben exportar las siguientes variables de entorno: 
  
   ```sh 
   export CORE_PEER_TLS_ENABLED=true
@@ -268,7 +263,7 @@ export CORE_PEER_ADDRESS=localhost:7051
   export CORE_PEER_ADDRESS=localhost:9051
   ```
   <p>
- <strong>Anexo? - Variables de entorno de Org3:</strong> Para realizar comandos de la blockchain desde la organización 3, se deben exportar las siguientes variables de entorno: 
+ <strong>Variables de entorno de Org3:</strong> Para realizar comandos de la blockchain desde la organización 3 en consola, se deben exportar las siguientes variables de entorno: 
  </p>
  
   ```sh 
@@ -278,37 +273,8 @@ export CORE_PEER_ADDRESS=localhost:7051
   export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
   export CORE_PEER_ADDRESS=localhost:11051
   ```
-<h2>API REST</h2>
-
-<p>Finalizadas las pruebas del chaincode se puede levantar el servidor API REST y el servidor REDIS (que se encarga de la cola de tareas). Ir a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>
-
-```sh
- cd ..
- cd rest-api-typescript
- npm install
- npm run build
-```
-
-> NO OLVIDAR EJECUTAR EL SCRIPT generateEnv.sh que está en la carpeta rest-api-typescript/scripts. Este script genera un archivo .env que se debe colocar en la carpeta principal rest-api-typescript.
-
-<p>Luego se debe inicializar el server REDIS, que se encarga de mantener la cola de tareas que le van llegando en cada transacción:</p>
-
-```sh
- export REDIS_PASSWORD=$(uuidgen)
- npm run start:redis	
-```
-
-<p>Finalmente iniciar el servidor API REST</p>
-
-```
- npm run start:dev
-```
-
-> Las API-KEYS correspondientes a cada organización estan en el archivo .env y deben ser enviadas en la cabecera de la petición HTTP al servidor REST para que la misma sea autorizada.
 
 </details>
-
----
 
 <!-- Instalación APLICACION WEB -->
 <h1 id="installation-app-web"> 🕸️ Instalación-Aplicación Web</h1>

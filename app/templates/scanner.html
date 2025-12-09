@@ -123,10 +123,7 @@ $(document).ready(function() {
     }
     
     function leerDHT(){
-        socket.off('temp');
-        socket.off('hum');
         
-        resetHeartbeatTimer();
         subscribe('temp'); 
         subscribe('hum');
         socket.emit('dht_request',{request:'ON'});
@@ -134,8 +131,10 @@ $(document).ready(function() {
         socket.on('temp', handleTempMessage);
         socket.on('hum', handleHumMessage);
         
+        console.log("Quiso imprimir :D")
         
         //socket.emit('dht_request',{request:'OFF'});
+
     }
 
     $('#llenar_boton_rfid').click(function(e){
@@ -151,8 +150,9 @@ $(document).ready(function() {
     $('#llenar_boton_dht').click(function(e){
         e.preventDefault();
         showPopup("dht")
-        
+        resetHeartbeatTimer();
         leerDHT();
+        hidePopup();
     });
 
     // --- Botón de Cerrar Popup ---
