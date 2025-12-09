@@ -86,7 +86,6 @@ $(document).ready(function() {
             $('#llenar_boton_rfid, #llenar_boton_dht').prop('disabled', false);
             resetHeartbeatTimer();
             subscribe('heartbeat');
-            console.log("LLEGO_2")
         }else console.log("NO LLEGA")
     });
     
@@ -94,6 +93,33 @@ $(document).ready(function() {
     function handleRFIDMessage(data){
         $('#rfid_tag').val(data.payload);
         hidePopup(); // Oculta el popup al recibir el dato
+    }
+
+    // Función de callback para DHT (temperatura)
+    function handleTempMessage(d){ 
+        $('#temperatura').val(d.payload); 
+        unsubscribe('temp'); 
+        socket.off('temp', handleTempMessage);
+    }
+        
+    // Función de callback para DHT (humedad)
+    function handleHumMessage(d){ 
+        $('#humedad').val(d.payload); 
+        unsubscribe('hum'); 
+        socket.off('hum', handleHumMessage);
+    }
+    
+    function leerDHT(){
+        resetHeartbeatTimer();
+        subscribe('temp'); 
+        subscribe('hum');
+        socket.emit('dht_request',{request:'ON'});
+        
+        socket.on('temp', handleTempMessage);
+        socket.on('hum', handleHumMessage);
+        
+        
+        socket.emit('dht_request',{request:'OFF'});
     }
 
     $('#llenar_boton_rfid').click(function(e){
@@ -109,32 +135,9 @@ $(document).ready(function() {
     $('#llenar_boton_dht').click(function(e){
         e.preventDefault();
         showPopup("dht")
-        resetHeartbeatTimer();
-        // Función de callback para DHT (temperatura)
-        function handleTempMessage(d){ 
-            $('#temperatura').val(d.payload); 
-            unsubscribe('temp'); 
-            socket.off('temp', handleTempMessage);
-        }
         
-        // Función de callback para DHT (humedad)
-        function handleHumMessage(d){ 
-            $('#humedad').val(d.payload); 
-            unsubscribe('hum'); 
-            socket.off('hum', handleHumMessage);
-        }
-
-        subscribe('temp'); 
-        subscribe('hum');
-        socket.emit('dht_request',{request:'ON'});
+        leerDHT();
         
-        socket.on('temp', handleTempMessage);
-        socket.on('hum', handleHumMessage);
-        
-        // NOTA: Es común que 'dht_request:OFF' se envíe *después* de un breve retraso
-        // o después de recibir el primer dato, dependiendo de la implementación del hardware.
-        // Aquí lo dejamos al final de la lógica del cliente para simplificar.
-        socket.emit('dht_request',{request:'OFF'});
         hidePopup();
     });
 
@@ -142,6 +145,8 @@ $(document).ready(function() {
     $('#cerrarPopupBtn').click(function(){
         hidePopup();
     });
+
+    leerDHT();
 
 });
 </script>
