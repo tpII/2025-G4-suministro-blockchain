@@ -1,9 +1,7 @@
 venv
-TP2-ESCANER-RFID/config.h
 
 __pycache__
 
-.env
 
 # Claves y certificados de Fabric CA
 fabric-supply-chain/test-network/**/fabric-ca/**/msp/keystore/*

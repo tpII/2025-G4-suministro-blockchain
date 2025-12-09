@@ -23,6 +23,10 @@ $(document).ready(function() {
     var popupImg = $('#scanner-popup img');
     var popupTitle = $('#popup-title');
     var popupMessage = $('#popup-message');
+
+    let tempRecibida = false;
+    let humRecibida = false;
+
     const popupData = {
             rfid: {
                 titulo: "Escaneo RFID", 
@@ -98,15 +102,24 @@ $(document).ready(function() {
     // Función de callback para DHT (temperatura)
     function handleTempMessage(d){ 
         $('#temperatura').val(d.payload); 
-        unsubscribe('temp'); 
-        socket.off('temp', handleTempMessage);
+        tempRecibida = true;
+        checkDHTComplete();
     }
-        
-    // Función de callback para DHT (humedad)
+
     function handleHumMessage(d){ 
         $('#humedad').val(d.payload); 
-        unsubscribe('hum'); 
-        socket.off('hum', handleHumMessage);
+        humRecibida = true;
+        checkDHTComplete();
+    }
+
+    function checkDHTComplete(){
+        if(tempRecibida && humRecibida){
+            hidePopup();
+            // opcional: mandar OFF para limpiar
+            socket.emit('dht_request',{request:'OFF'});
+            tempRecibida = false;
+            humRecibida = false;
+        }
     }
     
     function leerDHT(){
@@ -122,7 +135,7 @@ $(document).ready(function() {
         socket.on('hum', handleHumMessage);
         
         
-        socket.emit('dht_request',{request:'OFF'});
+        //socket.emit('dht_request',{request:'OFF'});
     }
 
     $('#llenar_boton_rfid').click(function(e){

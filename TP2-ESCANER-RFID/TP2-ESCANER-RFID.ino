@@ -89,10 +89,7 @@ void setup() {
   //Inicializar DHT11
   dht.begin();
 
-  // Inicializar WiFi
-  setup_wifi();
-
-  // Inicializar SAP (red local) 
+  // Configurar ESP8266 como Access Point
   setup_SAP();
 
   // Asigna servidor MQTT y callback
@@ -127,7 +124,7 @@ void loop() {
 }
 
 // Inicializar WiFi
-void setup_wifi() {
+/*void setup_wifi() {
 
   // Conectar a la red Wi-Fi
   WiFi.mode(WIFI_STA);
@@ -142,11 +139,12 @@ void setup_wifi() {
   // Imprimo dirección IP del dispositivo IOT
   Serial.print("Dirección IP: ");
   Serial.println(WiFi.localIP());
-}
+}*/
 
 // Funcion que inicializa red local Soft Access Point y muestra direccion IP de dispositivo
 void setup_SAP(){
   
+  WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password);
 
   IPAddress IP = WiFi.softAPIP();
@@ -193,7 +191,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 // Función para reconectar al BROKER MQTT
 void reconnect() {
-  
+  Serial.println(mqtt_server);
+  Serial.println(mqtt_port);
   while (!client.connected()) {
     Serial.print("Intentando conectar al servidor MQTT...");
     if (client.connect("ESPClient")) {
@@ -290,8 +289,10 @@ void send_dht(){
   client.publish("hum",dhtval.hum_str);
   
   // Desuscribirse de los topics "temp" y "hum"
-  client.unsubscribe("temp");
-  client.unsubscribe("hum");
+  //client.unsubscribe("temp");
+  //client.unsubscribe("hum");
+
+  DHT_REQUEST = false;
 }
 
 void reiniciarRC522() {
