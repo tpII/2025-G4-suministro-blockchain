@@ -1,6 +1,6 @@
 <!-- Logo -->
 <div>
-  <img src="https://github.com/tpII/2023-G5-BLOCKCHAIN/assets/47442578/d5328f24-f606-41b5-97ea-98c57fc38ca9">
+  <img src="./app/static/img/logo.png">
 </div>
 
 <!-- Titulo del proyecto -->
@@ -225,6 +225,7 @@ export CORE_PEER_ADDRESS=localhost:7051
   ```sh
   cd ../rest-api-typescript/scripts
   ./generateEnv.sh
+  mv .env ../
   ```
   Luego, se debe volver a la carpeta rest-api-typescript e instalar las dependencias y realizar el build:</p>
 
