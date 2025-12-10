@@ -117,7 +117,7 @@ def index():
                 print("DEBUG entry['data']:", entry.get('data'))
                 data_dict = json.loads(entry['data'])
             except json.JSONDecodeError:
-                flash("Error: los datos recibidos no son JSON válido.", "error")
+                #flash("Error: los datos recibidos no son JSON válido.", "error")
                 data_dict = {}
         else:
             data_dict = {}
@@ -342,6 +342,8 @@ HUM_MIN, HUM_MAX = 60, 80
 @app.route("/new_asset", methods=['GET', 'POST'])
 def new_asset():
     form = CreateAssetForm()
+    config = load_wine_config()
+    WINE_VARIETALS = config["WINE_VARIETALS"]
 
     if request.method == 'POST' and form.enviar_boton.data and form.validate_on_submit():
         rfid_value = form.rfid_tag.data
